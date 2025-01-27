@@ -20,7 +20,7 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt
 ) )
 ) A group by COMPCODE
  `
-        console.log(sql, '23');
+
 
 
         result = await connection.execute(sql)

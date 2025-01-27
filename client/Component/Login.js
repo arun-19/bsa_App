@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useLoginUserMutation } from '../redux/service/user'; // Assuming RTK query
+import { useLoginUserMutation } from '../redux/service/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 function LoginScreen({ navigation }) {
 
@@ -18,18 +18,19 @@ function LoginScreen({ navigation }) {
         return true;
     };
 
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
         setError(null);
         if (!validateInputs()) return;
-
         try {
             console.log("Sending login request with:", { username, password });
             const data = await loginUser({ username, password }).unwrap();
             console.log(data);
             if (data.message === "Login Successfull") {
                 await AsyncStorage.setItem('userName', username);
-                navigation.navigate('Approval');
+                navigation.navigate('HOME');
             } else {
                 setError('Login failed, please try again.');
             }

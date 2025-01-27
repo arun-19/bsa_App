@@ -3,7 +3,7 @@
     "name": "sample",
     "slug": "sample",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -39,6 +39,12 @@
           "android": {
             "usesCleartextTraffic": true
           }
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ]
     ]

@@ -6,7 +6,7 @@ const UsersApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
     }),
-    tagTypes: ["Login"],
+    tagTypes: ["Users"],
     endpoints: (builder) => ({
 
 
@@ -35,9 +35,51 @@ const UsersApi = createApi({
             },
             providesTags: ["Users"],
         }),
-        createUser: builder.mutation({
+        getUserDet: builder.query({
+            query: () => {
+
+                return {
+                    url: `${USERS_API}/getUserDet`,
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+
+                };
+            },
+            providesTags: ["Users"],
+        }),
+        getDesignation: builder.query({
+            query: () => {
+
+                return {
+                    url: `${USERS_API}/getDesignation`,
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+
+                };
+            },
+            providesTags: ["Users"],
+        }),
+        getRolesOnPage: builder.query({
+            query: ({ params }) => {
+
+                return {
+                    url: `${USERS_API}/getRolesOnPage`,
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+                    params,
+                };
+            },
+            providesTags: ["Users"],
+        }),
+        createRoleOnPage: builder.mutation({
             query: (payload) => ({
-                url: USERS_API,
+                url: USERS_API + "/createRoleOnPage",
                 method: "POST",
                 body: payload,
                 headers: {
@@ -47,6 +89,18 @@ const UsersApi = createApi({
             invalidatesTags: ["Login"],
         }),
 
+        createUser: builder.mutation({
+            query: (payload) => ({
+                url: USERS_API,
+                method: "POST",
+                body: payload,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                },
+            }),
+            invalidatesTags: ["Users"],
+        }),
+
 
     }),
 });
@@ -54,7 +108,11 @@ const UsersApi = createApi({
 export const {
     useLoginUserMutation,
     useGetUsersQuery,
-    useCreateUserMutation
+    useCreateUserMutation,
+    useGetUserDetQuery,
+    useGetDesignationQuery,
+    useGetRolesOnPageQuery,
+    useCreateRoleOnPageMutation,
 } = UsersApi;
 
 export default UsersApi;

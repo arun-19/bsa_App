@@ -40,8 +40,11 @@ export async function login(req, res) {
 
 export async function create(req, res) {
     const connection = await getConnection();
-    const { username, password, checkboxes } = req.body;
-    const roles = checkboxes.map((item) => item.label)
+    const { username, password, checkboxes, email, role } = req.body;
+    console.log(checkboxes, 'check');
+
+    const roles = checkboxes || [].map((item) => item.id)
+    console.log(roles, 'roles');
     const createdDate = new Date();
 
     if (!username || !password) {
@@ -49,9 +52,8 @@ export async function create(req, res) {
     }
 
     try {
-        // Check if the username already exists
         const userNameResult = await connection.execute(
-            'SELECT COUNT(*) as count FROM SPUSERLOG WHERE username = :username',
+            'SELECT COUNT(*) as count FROM mobileuser WHERE username = :username',
             { username }
         );
 
@@ -63,17 +65,17 @@ export async function create(req, res) {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const sql = 'INSERT INTO SPUSERLOG(username, password) VALUES (:username, :hashedPassword)';
-        await connection.execute(sql, { username, hashedPassword });
+        const sql = 'INSERT INTO mobileuser(username, password,email,role) VALUES (:username, :hashedPassword, :email, :role)';
 
-        const userRoleSql = 'INSERT INTO USERLOG(userName, role, createdDate) VALUES (:username, :role, :createdDate)';
+        await connection.execute(sql, { username, hashedPassword, email, role });
+        const userRoleSql = 'INSERT INTO mobuserlog(userName, ALLOWEDPAGES, createdDate) VALUES (:username, :ALLOWEDPAGES, :createdDate)';
+        console.log(userRoleSql, 'userRoleSql');
         for (const role of roles) {
-            await connection.execute(userRoleSql, { username, role, createdDate });
+            await connection.execute(userRoleSql, { username, ALLOWEDPAGES: role, createdDate });
+            console.log(role, 'role');
         }
-
         await connection.commit();
         await connection.close();
-
         return res.json({ statusCode: 0, message: 'User created successfully' });
     } catch (error) {
         console.error(error);
@@ -88,12 +90,17 @@ export async function get(req, res) {
     const connection = await getConnection(res)
     try {
         const sql = `  
-  select T.userName, userlog.ROLE
-from spuserlog T
-left join userlog on T.USERNAME = userlog.USERNAME
+  select T.userName, mobuserlog.allowedpages
+from mobileuser T
+left join mobuserlog on T.USERNAME = mobuserlog.USERNAME
 order by userName`
         const result = await connection.execute(sql)
-        const resp = result.rows.map(user => ({ userName: user[0], role: user[1] }))
+        const resp = result.rows.map(user => ({
+            userName: user[0], allowedpages: user[1],
+            defaultAdmin: user[2]
+        }))
+        console.log(resp, '102');
+
         return res.json({ statusCode: 0, data: resp })
     }
     catch (err) {
@@ -106,18 +113,45 @@ order by userName`
 }
 
 export async function getOne(req, res) {
+
     const connection = await getConnection(res)
     try {
-        const { gtCompMastId } = req.query;
-        console.log(gtCompMastId, 'id');
-
-        const result = await connection.execute(`
-    select userName from spuserlog where gtcompmastid = :gtcompmastid
-    `, { gtCompMastId })
-        const resp = result.rows.map(user => ({ userName: user[0] }))
-        console.log(resp, ' resp');
+        const sql = `  
+  select T.userName, mobuserlog.allowedpages, T.DEFAULTADMIN
+from mobileuser T
+left join mobuserlog on T.USERNAME = mobuserlog.USERNAME
+order by userName`
+        const result = await connection.execute(sql)
+        const resp = result.rows.map(user => ({
+            userName: user[0], allowedpages: user[1],
+            defaultAdmin: user[2]
+        }))
         return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
 
+export async function getUserDet(req, res) {
+    const connection = await getConnection(res)
+    try {
+        const sql = `SELECT B.IDCARD||'@'||C.COMPCODE MOBUSER,C.COMPCODE,D.BANDNAME,E.MNNAME1 DEPTNAME,F.DESIGNATION FROM HREMPLOYMAST A
+JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID=B.HREMPLOYMASTID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID=A.COMPCODE
+JOIN HRBANDMAST D ON D.HRBANDMASTID=B.BAND
+JOIN GTDEPTDESGMAST E ON E.GTDEPTDESGMASTID=B.DEPTNAME
+JOIN GTDESIGNATIONMAST F ON F.GTDESIGNATIONMASTID=B.DESIGNATION
+WHERE D.BANDNAME='STAFF' AND B.IDACTIVE='YES'`
+        const result = await connection.execute(sql)
+
+        const resp = result.rows.map(user => ({ id: user[0], value: user[0], role: user[4] }))
+
+        return res.json({ statusCode: 0, data: resp })
     }
     catch (err) {
         console.log(err)
@@ -129,34 +163,96 @@ export async function getOne(req, res) {
 }
 
 
-// export async function getUserDet(req, res) {
-//   const connection = await getConnection(res);
+export async function getDesignation(req, res) {
+    const connection = await getConnection(res)
+    try {
+        const sql = `select distinct(role) from mobuserlog `
+        const result = await connection.execute(sql)
 
-//   try {
-//     const { gtCompMastId } = req.query;
-//     const result = await connection.execute(`
-//       SELECT spuserlog.userName, spuserlog.gtCompMastId, gtCompMast.compname, pcategory 
-//       FROM spuserlog
-//       JOIN gtCompMast ON gtCompMast.gtCompMastId = spuserlog.gtCompMastId
-//       JOIN (
-//         SELECT pcategory, gtcompprodet.gtCompMastId 
-//         FROM gtcompprodet 
-//         JOIN gtpartycatmast ON gtcompprodet.partycat = gtpartycatmast.gtpartycatmastid
-//       ) partyCat ON gtCompMast.gtCompMastId = partyCat.gtCompMastId
-//       WHERE gtCompMast.gtCompMastId = :gtCompMastId
-//     `, { gtCompMastId });
-//     const resp = result.rows.map(user => ({
-//       userName: user[0], gtCompMastId: user[1], compName: user[2], pCategory: user[3]
-//     }));
+        const resp = result.rows.map(user => ({ value: user[0], id: user[0] }))
 
-//     return res.json({ statusCode: 0, data: resp });
-//   } catch (err) {
-//     console.error('Error retrieving data:', err);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   } finally {
-//     await connection.close();
-//   }
-// }
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+export async function getRolesOnPage(req, res) {
+    const connection = await getConnection(res)
+    try {
+        const { selectedRole } = req.query;
+        console.log(selectedRole, 'selectedRole');
+
+        const sql = `SELECT * FROM mobuserlog where mobuserlog.role ='${selectedRole}'`
+        console.log(sql, '200');
+        const result = await connection.execute(sql)
+
+        const resp = result.rows.map(role => ({
+            id: role[0], roleId: role[1], Read: role[2], Update: role[3], Delete: role[4], Create: role[5],
+            Admin: role[6], Pages: role[7]
+
+        }))
+
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+export async function createRoleOnPage(req, res) {
+    const connection = await getConnection();
+    const { roleName, permissions } = req.body;
+    console.log(req.body, 'req.body');  // Check the incoming data
+
+    const createdDate = new Date();
+
+    try {
+        // Prepare to insert each page's permissions
+        const insertPromises = [];
+
+        for (const page in permissions) {
+            const pagePermissions = permissions[page];
+
+            // Prepare the SQL values for each permission type
+            const read = pagePermissions.Read ? 1 : 0;
+            const create = pagePermissions.Create ? 1 : 0;
+            const edit = pagePermissions.Update ? 1 : 0;
+            const del = pagePermissions.Delete ? 1 : 0;
+            const isdefault = pagePermissions.Admin ? 1 : 0;
+
+            // Construct the SQL query for each page's permissions
+            const sql = `INSERT INTO mobuserlog ("ROLE", "CREATE", "EDIT", "DELETE", "READ", "PAGE", "ISDEFAULT")
+                         VALUES ('${roleName}', ${create}, ${edit}, ${del}, ${read}, '${page}', ${isdefault})`;
+
+            console.log(sql, 'sql');
+
+            insertPromises.push(connection.execute(sql));
+        }
+
+        // Execute all insert statements
+        await Promise.all(insertPromises);
+        await connection.commit(); // Commit after all queries are executed
+        await connection.close(); // Close connection
+
+        return res.json({ statusCode: 0, message: 'User created successfully' });
+
+    } catch (error) {
+        console.error(error);
+        await connection.close();
+        return res.json({ statusCode: 1, message: 'An error occurred while creating the user' });
+    }
+}
+
+
 
 export async function remove(req, res) {
     const connection = await getConnection.apply(res);

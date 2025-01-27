@@ -35,34 +35,35 @@ export async function get(req, res) {
     }
 }
 
-export async function getOrdersInHand(req, res) {
+export async function getInsuranceData(req, res) {
     const connection = await getConnection(res)
     try {
-        const { filterYear, filterBuyer } = req.query;
+        const { } = req.query;
+        console.log("hit42");
 
         const sql = ` 
-SELECT X.SLAP,COUNT(X.SLAP) VAL FROM (
-SELECT CASE WHEN X.AGE BETWEEN 18 AND 25 THEN '18 - 25'
-WHEN X.AGE BETWEEN 25 AND 35 THEN '25 - 35' 
-WHEN X.AGE BETWEEN 35 AND 45 THEN '35 - 45' 
-WHEN X.AGE BETWEEN 45 AND 65 THEN '45 - 60'
-WHEN X.AGE > 60 THEN '60 Above'  END SLAP FROM (
-SELECT MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12 AGE FROM MISTABLE A WHERE A.COMPCODE = '${filterBuyer}'
-AND A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) )
-) X
-) X
-WHERE X.SLAP IS NOT NULL
-GROUP BY X.SLAP
-ORDER BY 1
+SELECT ROWNUM SNO,AA.*
+FROM(SELECT A.DOCID,A.DOCDATE,C.INSURANCEDESC DESCOFINSASSET,B.OWNERSHIPP,D.VEHICLENO,D.VEHICLENAME,E.INSCOMPNAME INSUREDBY,
+B.INSREFNO POLICYNO,B.VALIDFROM,B.VALIDTO,B.VALIDTO-TO_DATE(SYSDATE) DUEDAYS,
+B.INSPREMIUMVALUE,B.TOTALPREMIUM,B.PAYMENTDETAILS,B.PAYMENTMODE
+FROM GTINSURANCE A
+JOIN GTINSURANCEDET B ON A.GTINSURANCEID=B.GTINSURANCEID
+JOIN GTINSDESCMAST C ON B.DESCOFINSASSET=C.GTINSDESCMASTID
+LEFT JOIN HRVEHMAST D ON B.VEHICLENO=D.HRVEHMASTID
+JOIN GTINSCOMPMAST E ON B.INSUREDBY=E.GTINSCOMPMASTID
+JOIN GTCOMPMAST F ON A.COMPCODE=F.GTCOMPMASTID
+WHERE F.COMPCODE='BPP'  AND B.VALIDTO-TO_DATE(SYSDATE) >= 0
+ORDER BY DUEDAYS)AA
 `
         console.log(sql, 'sql60');
         let result = await connection.execute(sql);
         result = result.rows.map(row => ({
-            buyer: row[0], value: row[1], female: row[2], total: row[3]
+            sno: row[0], docId: row[1], docDate: row[2], discoFinAsset: row[3], ownership: row[4], vehNo: row[5], vehName: row[6],
+            insuredby: row[7], policyNo: row[8], validFrom: row,
+            validTo: row[10], dueDays: row[11], insPremiumValue: row,
+            totalPremium: row[13], paymentDetails: row[14], paymentMode: row[
+                15]
+
         }))
         return res.json({
             statusCode: 0, data: result

@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 export default function NavBar({ navigation }) {
     return (
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>App Title</Text>
+            <Text style={styles.headerTitle}>Bharani Priya</Text>
             <TouchableOpacity onPress={() => alert('User Icon clicked!')}>
                 <Icon name="user" size={30} color="white" />
             </TouchableOpacity>
@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
+
     },
     text: {
         fontSize: 18,
@@ -37,8 +38,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
+        paddingHorizontal: 10,
         backgroundColor: '#3b82f6',
+        marginTop: 25
     },
     headerTitle: {
         fontSize: 18,
