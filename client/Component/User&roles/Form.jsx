@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions, ScrollView } from "react-native";
 import Toast from "react-native-toast-message";
 
-import { useCreateUserMutation, useGetUserDetQuery } from "../../redux/service/user";
+import { useCreateUserMutation, useGetUserDetQuery, useGetUsersQuery } from "../../redux/service/user";
 import tabs from "../tabIndex";
 import { Dropdown } from "../../ReusableComponents/inputs";
+import FloatingButton from "../Buttons/Buttons";
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,6 +18,9 @@ const Form = ({ closeModal, onClose, userDet }) => {
     const [email, setEmail] = useState('');
 
     const [createUser, { isLoading, isError, error }] = useCreateUserMutation();
+    const { data: tableData } = useGetUsersQuery({})
+
+    console.log(tableData, 'tableData');
 
     useEffect(() => {
         if (selectedEmply && userDet) {
@@ -145,8 +149,50 @@ const Form = ({ closeModal, onClose, userDet }) => {
                     placeholder="Enter email"
                 />
             </View>
+            <View style={styles.tableContainer}>
+                {/* Table Header */}
+                <View style={[styles.row, styles.headerRow]}>
+                    <View style={[styles.cell, { width: 30 }]}>
+                        <Text style={styles.headerText}>Sno</Text>
+                    </View>
+                    <View style={[styles.cell, { width: 100 }]}>
+                        <Text style={styles.headerText}>Asset</Text>
+                    </View>
 
-            <View style={styles.buttonContainer}>
+                    <View style={[styles.cell, { width: 90 }]}>
+                        <Text style={styles.headerText}>User</Text>
+                    </View>
+                </View>
+
+
+                {tableData?.data ? (
+                    tableData?.data.map((item, index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.row,
+                                index % 2 === 0 ? styles.evenRow : styles.oddRow
+                            ]}
+                        >
+                            <View style={[styles.cell, { width: 30 }]}>
+                                <Text style={styles.cellText}>{index + 1}</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 100 }]}>
+                                <Text style={styles.cellText}>{item.userName}</Text>
+                            </View>
+
+                            <View style={[styles.cell, { width: 90 }]}>
+                                <Text style={styles.cellText}>{item.email}</Text>
+                            </View>
+
+
+                        </View>
+                    ))
+                ) : (
+                    <Text>No data available</Text>
+                )}
+            </View>
+            {/* <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.submitButton}
                     onPress={handleSubmit}
@@ -157,7 +203,9 @@ const Form = ({ closeModal, onClose, userDet }) => {
                     </Text>
                 </TouchableOpacity>
                 {isError && <Text style={styles.errorMessage}>{error.message}</Text>}
-            </View>
+            </View> */}
+            <FloatingButton save={handleSubmit} />
+
         </ScrollView>
     );
 };
@@ -212,6 +260,62 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 10,
     },
+    tableContainer: {
+        flex: 1,
+        paddingBottom: 8,
+        margin: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        width: "100%"
+    },
+    row: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: '#ddd',
+    },
+    evenRow: {
+        backgroundColor: '#f9f9f9',
+    },
+    oddRow: {
+        backgroundColor: '#ECECEC',
+    },
+    headerRow: {
+        backgroundColor: '#f1f8ff',
+        borderTopWidth: 1,
+    },
+    cell: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRightWidth: 1,
+        borderColor: '#ddd',
+        paddingVertical: 4,
+    },
+    headerText: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 14,
+    },
+    cellText: {
+        textAlign: 'right',
+        fontSize: 12,
+    },
+    cellNumber: {
+        alignItems: 'center',
+        textAlign: 'center',
+        fontSize: 12,
+        borderRightWidth: 1,
+        borderColor: '#ddd',
+    },
+    dueDaysWarning: {
+        color: 'red',
+        fontSize: 12,
+        textAlign: 'right',
+    },
+    cellNum: {
+        alignItems: 'center',
+        textAlign: 'right',
+        fontSize: 12,
+    }
 });
 
 export default Form;

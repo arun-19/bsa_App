@@ -1,25 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Stack = createStackNavigator();
+export default function NavBar() {
+    const navigation = useNavigation(); // Use the hook to get the navigation object
 
+    function handleNavigate() {
+        navigation.navigate('USERANDROLES'); // Now it works as expected
+    }
 
-
-export default function NavBar({ navigation }) {
     return (
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>Bharani Priya</Text>
-            <TouchableOpacity onPress={() => alert('User Icon clicked!')}>
+            <Image
+                style={styles.title}
+                source={require('./img/bharani-small.png')}
+            />
+
+            <TouchableOpacity onPress={handleNavigate}>
                 <Icon name="user" size={30} color="white" />
             </TouchableOpacity>
         </View>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     screenContainer: {
@@ -27,7 +30,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
-
     },
     text: {
         fontSize: 18,
@@ -40,11 +42,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         backgroundColor: '#3b82f6',
-        marginTop: 25
+        marginTop: 25,
     },
     headerTitle: {
         fontSize: 18,
         color: 'white',
         fontWeight: 'bold',
+    },
+    title: {
+        width: 140,
+        height: 35,
+        margin: 2,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+        backgroundColor: "white",
+        borderRadius: 5,
     },
 });

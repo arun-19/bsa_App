@@ -1,101 +1,121 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useGetMisDashboardOrdersInHandQuery } from '../redux/service/misDashboardService';
-import NavBar from './Navbar';
 import { useDeviceOrientation } from '@react-native-community/hooks';
+import { useSelector } from 'react-redux';
+import moment from 'moment';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import NavBar from './Navbar';
 
 export default function InsuranceReport() {
     const orientation = useDeviceOrientation();
-    console.log(orientation);
-    const [dueDays, setDueDays] = useState();
-    const [countUnder20DueDays, setCountUnder20DueDays] = useState(0); // New state to store the count
-    const { data: insurancedata, error, isLoading, refetch } = useGetMisDashboardOrdersInHandQuery({ params: {} });
-    const [tableData, setTableData] = useState([]);
-    console.log(countUnder20DueDays, 'countUnder20DueDays');
+    const tableData = useSelector(state => state.tableData.tableData);
 
+    // Lock orientation to portrait on mount
     useEffect(() => {
-        if (insurancedata?.data) {
-            const formattedData = insurancedata.data.map(item => ({
-                sno: item.sno,
-                discoFinAsset: item.discoFinAsset,
-                policyNo: item.policyNo,
-                vehName: item.vehName,
-                totalPremium: item.totalPremium,
-                dueDays: item.dueDays,
-            }));
-            setTableData(formattedData);
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
 
-            // Count entries with dueDays less than 20
-            const count = formattedData.filter(item => item.dueDays < 20).length;
-            setCountUnder20DueDays(count); // Update the state with the count
-        }
-    }, [insurancedata]);
+        return () => {
+            ScreenOrientation.unlockAsync(); // Unlock all orientations on unmount
+        };
+    }, []);
 
     const getDueDaysStyle = (due) => {
-        console.log(due, 'due');
-
-        let dueDays = null;
-        dueDays = due < 20 ? styles.dueDaysWarning : styles.cellText;
-
-        return dueDays;
+        let dueDaysStyle = null;
+        dueDaysStyle = due < 20 ? styles.dueDaysWarning : styles.cellNum;
+        return dueDaysStyle;
     };
 
     return (
         <View style={styles.pageContainer}>
             <NavBar />
-            {/* Display the count of items with dueDays less than 20 */}
-            <View style={styles.countContainer}>
-                <Text style={styles.countText}>
-                    Count of Due Days less than 20: {countUnder20DueDays}
-                </Text>
-            </View>
-
-            <ScrollView horizontal={orientation === "portrait" ? true : false} contentContainerStyle={styles.scrollContainer}>
+            <Text style={styles.header}>Insurance Detail Report</Text>
+            <ScrollView
+                horizontal={orientation === "landscape" ? true : false}
+                contentContainerStyle={styles.scrollContainer}
+            >
                 <View style={styles.tableContainer}>
                     {/* Table Header */}
                     <View style={[styles.row, styles.headerRow]}>
-                        <View style={[styles.cell, { width: 60 }]}>
+                        <View style={[styles.cell, { width: 30 }]}>
                             <Text style={styles.headerText}>Sno</Text>
                         </View>
                         <View style={[styles.cell, { width: 100 }]}>
                             <Text style={styles.headerText}>Asset</Text>
                         </View>
-                        <View style={[styles.cell, { width: 150 }]}>
-                            <Text style={styles.headerText}>Policy No</Text>
-                        </View>
-                        <View style={[styles.cell, { width: 120 }]}>
-                            <Text style={styles.headerText}>Vehicle Name</Text>
+
+                        <View style={[styles.cell, { width: 90 }]}>
+                            <Text style={styles.headerText}>Vehicle No</Text>
                         </View>
                         <View style={[styles.cell, { width: 100 }]}>
+                            <Text style={styles.headerText}>Vehicle Name</Text>
+                        </View>
+                        <View style={[styles.cell, { width: 60 }]}>
+                            <Text style={styles.headerText}>Valid From</Text>
+                        </View>
+                        <View style={[styles.cell, { width: 60 }]}>
+                            <Text style={styles.headerText}>Valid To</Text>
+                        </View>
+                        <View style={[styles.cell, { width: 130 }]}>
+                            <Text style={styles.headerText}>Policy No</Text>
+                        </View>
+                        <View style={[styles.cell, { width: 230 }]}>
+                            <Text style={styles.headerText}>Insured By</Text>
+                        </View>
+                        <View style={[styles.cell, { width: 60 }]}>
                             <Text style={styles.headerText}>Premium</Text>
                         </View>
-                        <View style={[styles.cell, { width: 80 }]}>
-                            <Text style={styles.headerText}>Due Days</Text>
+                        <View style={[styles.cell, { width: 50 }]}>
+                            <Text style={styles.headerText}>Due</Text>
                         </View>
                     </View>
 
-                    {tableData.map((item, index) => (
-                        <View key={index} style={styles.row}>
-                            <View style={[styles.cell, { width: 60 }]}>
-                                <Text style={styles.cellText}>{item.sno}</Text>
+                    {/* Table Data */}
+                    {tableData ? (
+                        tableData.map((item, index) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.row,
+                                    index % 2 === 0 ? styles.evenRow : styles.oddRow
+                                ]}
+                            >
+                                <View style={[styles.cell, { width: 30 }]}>
+                                    <Text style={styles.cellText}>{item.sno}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 100 }]}>
+                                    <Text style={styles.cellText}>{item.discoFinAsset}</Text>
+                                </View>
+
+                                <View style={[styles.cell, { width: 90 }]}>
+                                    <Text style={styles.cellText}>{item.vehNo}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 100 }]}>
+                                    <Text style={styles.cellText}>{item.vehName}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 60 }]}>
+                                    <Text style={styles.cellText}>{moment(item.validFrom).format('DD/MM/YYYY')}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 60 }]}>
+                                    <Text style={styles.cellText}>{moment(item.validTo).format('DD/MM/YYYY')}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 130 }]}>
+                                    <Text style={styles.cellText}>{item.policyNo}</Text>
+                                </View>
+                                <View style={[styles.cell, { width: 230 }]}>
+                                    <Text style={styles.cellText}>{item.insuredby}</Text>
+                                </View>
+                                <View style={[styles.cellNumber, { width: 60 }]}>
+                                    <Text style={styles.cellNum}>{item.totalPremium}</Text>
+                                </View>
+                                <View style={[styles.cellNumber, { width: 50 }]}>
+                                    <Text style={getDueDaysStyle(item.dueDays)}>{item.dueDays}</Text>
+                                </View>
+
                             </View>
-                            <View style={[styles.cell, { width: 100 }]}>
-                                <Text style={styles.cellText}>{item.discoFinAsset}</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 150 }]}>
-                                <Text style={styles.cellText}>{item.policyNo}</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 120 }]}>
-                                <Text style={styles.cellText}>{item.vehName}</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 100 }]}>
-                                <Text style={styles.cellText}>{item.totalPremium}</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={getDueDaysStyle(item.dueDays)}>{item.dueDays}</Text>
-                            </View>
-                        </View>
-                    ))}
+                        ))
+                    ) : (
+                        <Text>No data available</Text>
+                    )}
                 </View>
             </ScrollView>
         </View>
@@ -107,19 +127,40 @@ const styles = StyleSheet.create({
         flex: 1,
         position: 'relative',
         marginTop: 10,
-        margin: 20,
+        margin: 2,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    header: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'left',
+        margin: 5,
     },
     scrollContainer: {
         paddingBottom: 8,
+        margin: 5,
+        borderBottomWidth: 1,
+        borderColor: '#ddd',
     },
     tableContainer: {
         flex: 1,
-        marginBottom: 20,
+        paddingBottom: 8,
+        margin: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        width: "100%"
     },
     row: {
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderColor: '#ddd',
+    },
+    evenRow: {
+        backgroundColor: '#f9f9f9',
+    },
+    oddRow: {
+        backgroundColor: '#ECECEC',
     },
     headerRow: {
         backgroundColor: '#f1f8ff',
@@ -138,20 +179,24 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     cellText: {
+        textAlign: 'right',
+        fontSize: 12,
+    },
+    cellNumber: {
+        alignItems: 'center',
         textAlign: 'center',
         fontSize: 12,
+        borderRightWidth: 1,
+        borderColor: '#ddd',
     },
     dueDaysWarning: {
         color: 'red',
         fontSize: 12,
-        textAlign: 'center',
+        textAlign: 'right',
     },
-    countContainer: {
-        marginBottom: 10,
+    cellNum: {
         alignItems: 'center',
-    },
-    countText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
+        textAlign: 'right',
+        fontSize: 12,
+    }
 });

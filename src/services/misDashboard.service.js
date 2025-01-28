@@ -59,8 +59,8 @@ ORDER BY DUEDAYS)AA
         let result = await connection.execute(sql);
         result = result.rows.map(row => ({
             sno: row[0], docId: row[1], docDate: row[2], discoFinAsset: row[3], ownership: row[4], vehNo: row[5], vehName: row[6],
-            insuredby: row[7], policyNo: row[8], validFrom: row,
-            validTo: row[10], dueDays: row[11], insPremiumValue: row,
+            insuredby: row[7], policyNo: row[8], validFrom: row[9],
+            validTo: row[10], dueDays: row[11], insPremiumValue: row[12],
             totalPremium: row[13], paymentDetails: row[14], paymentMode: row[
                 15]
 

@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, Image } from 'react-native';
 
 
 import NavBar from './Navbar';
-
+import { useDispatch, useSelector } from 'react-redux';
+import InsuranceReport from './insuranceReport';
+import { useGetMisDashboardOrdersInHandQuery } from '../redux/service/misDashboardService';
+import { setCountUnder20DueDays } from '../redux/Slices/dueDaysSlice';
+import { setTableData } from '../redux/Slices/insuranceDataSlice';
 const { width, height } = Dimensions.get('window');
 
 export default function Home({ navigation }) {
     const [openModel, setOpenModel] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
     const [selectedAction, setSelectedAction] = useState('');
-
+    const { data: insurancedata, error, isLoading, refetch } = useGetMisDashboardOrdersInHandQuery({ params: {} });
+    const countUnder20DueDays = useSelector(state => state.dueDays.countUnder20DueDays);
 
     function openPage(selectedAction) {
-        console.log(selectedAction, 'selectedAction');
         navigation.navigate(`${selectedAction}`)
 
     }
@@ -25,9 +29,32 @@ export default function Home({ navigation }) {
         openPage(action)
     };
 
+    const dispatch = useDispatch();
+    console.log(insurancedata, 'insurancedata');
+
+    useEffect(() => {
+        if (insurancedata?.data) {
+            const formattedData = insurancedata.data.map(item => ({
+                sno: item.sno,
+                discoFinAsset: item.discoFinAsset,
+                policyNo: item.policyNo,
+                vehNo: item.vehNo,
+                vehName: item.vehName,
+                totalPremium: item.totalPremium,
+                validFrom: item.validFrom,
+                validTo: item.validTo,
+                insuredby: item.insuredby,
+                dueDays: item.dueDays,
+            }));
+            dispatch(setTableData(formattedData))
+            const count = formattedData.filter(item => item.dueDays < 20).length;
+            dispatch(setCountUnder20DueDays(count))
+
+        }
+    }, [insurancedata]);
 
     const cardLabels = [
-        { label: 'Insurance Details', action: 'INSURANCEREPORT', image: require('./img/insurance.png') },
+        { label: 'Insurance Details', action: 'INSURANCEREPORT', image: require('./img/insurance.png'), notify: countUnder20DueDays },
         { label: 'Apply Leave ', action: 'leave', image: require('./img/exit.png') },
         { label: 'Attendance Register', action: 'punch', image: require('./img/attendance.png') },
         { label: 'Available Leave ', action: 'punch', image: require('./img/convenience.png') },
@@ -43,12 +70,6 @@ export default function Home({ navigation }) {
             <NavBar />
 
             <View style={styles.container}>
-
-
-                <Text style={styles.header}>Welcome </Text>
-
-
-
                 <View style={styles.cardContainer}>
                     {cardLabels.map((item, index) => (
                         <View>
@@ -57,6 +78,9 @@ export default function Home({ navigation }) {
                                 style={styles.card}
                                 onPress={() => handleClick(item.label, item.action)}
                             >
+
+                                {item.notify ? <Text style={styles.notify}>{item.notify}</Text> : ''}
+
                                 <Image
                                     style={styles.title}
                                     source={item.image}
@@ -66,7 +90,7 @@ export default function Home({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     ))}
-                </View></View>
+                </View>            </View>
         </View>
     );
 }
@@ -149,7 +173,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     title: {
-        width: 80,
-        height: 80,
+        width: 40,
+        height: 40,
     },
+    notify: {
+        position: 'absolute',
+        top: -5,
+        right: 0,
+        backgroundColor: 'red',
+        borderRadius: 50,
+        height: 25,
+        width: 25,
+        color: 'white',
+        textAlign: "center",
+        paddingTop: 2,
+        fontSize: 18,
+    }
 });

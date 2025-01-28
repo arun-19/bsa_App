@@ -89,15 +89,11 @@ export async function get(req, res) {
 
     const connection = await getConnection(res)
     try {
-        const sql = `  
-  select T.userName, mobuserlog.allowedpages
-from mobileuser T
-left join mobuserlog on T.USERNAME = mobuserlog.USERNAME
-order by userName`
+        const sql = ` select * from mobileuser`
         const result = await connection.execute(sql)
         const resp = result.rows.map(user => ({
-            userName: user[0], allowedpages: user[1],
-            defaultAdmin: user[2]
+            userName: user[0], password: user[1],
+            email: user[2], role: user[2]
         }))
         console.log(resp, '102');
 

@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { openTabs } from "./features";
-
+import dueDaysReducer from './Slices/dueDaysSlice'
+import tableData from "./Slices/insuranceDataSlice"
 import { poRegister, commonMast, supplier, poData, misDashboardService, ordManagement, UsersApi } from './service'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
@@ -14,6 +15,8 @@ export const store = configureStore({
         [misDashboardService.reducerPath]: misDashboardService.reducer,
         [ordManagement.reducerPath]: ordManagement.reducer,
         [UsersApi.reducerPath]: UsersApi.reducer,
+        dueDays: dueDaysReducer,
+        tableData: tableData
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat([
@@ -24,6 +27,7 @@ export const store = configureStore({
             misDashboardService.middleware,
             ordManagement.middleware,
             UsersApi.middleware,
+
         ]
         ),
 });
