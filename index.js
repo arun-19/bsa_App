@@ -29,9 +29,6 @@ const path = __dirname + '/web-build/';
 
 app.use(express.static(path));
 
-app.get('/', function (req, res) {
-  res.sendFile(path + "index.html");
-});
 
 BigInt.prototype['toJSON'] = function () {
   return parseInt(this.toString());
