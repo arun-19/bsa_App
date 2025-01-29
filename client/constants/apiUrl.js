@@ -1,5 +1,5 @@
-export const BASE_URL = 'http://192.168.1.201:9005'
-// export const BASE_URL = "bharanipriya.pinnaclesystems.co.in"
+// export const BASE_URL = 'http://192.168.1.201:9005'
+export const BASE_URL = "bharanipriya.pinnaclesystems.co.in"
 export const PO_REGISTER = '/poRegister'
 export const COMMON_MAST = '/commonMast'
 export const SUPPLIER = '/supplier'
