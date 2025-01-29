@@ -18,10 +18,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/bharani-small.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.pinnacle_systems.sample"
+      "package": "com.pinnacle_systems.BharaniPriya"
     },
     "web": {
       "favicon": "./assets/bharani-small.png",
