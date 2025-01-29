@@ -101,18 +101,21 @@ function LoginScreen({ navigation }) {
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                        <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
+
                     </TouchableOpacity>
                 </BlurView>
             </Animated.View>
 
             {/* Footer with Light Gradient */}
-            <LinearGradient
+            <View
                 colors={['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.2)']} // Light gradient
                 style={styles.footer}
             >
-                <Text style={styles.footerText}>Pinnacle Systems - All rights reserved.</Text>
-            </LinearGradient>
+                <Image
+                    style={styles.logo}
+                    source={require('./img/pin.a0917c99.png')}
+                />
+            </View>
 
             <StatusBar style="light" />
         </LinearGradient>
@@ -189,9 +192,8 @@ const styles = StyleSheet.create({
     footer: {
         position: 'absolute',
         bottom: 0,
-        width: '100%',
-        paddingVertical: 10,
-        alignItems: 'center',
+
+
         justifyContent: 'center',
     },
     footerText: {
