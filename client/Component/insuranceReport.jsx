@@ -18,7 +18,7 @@ export default function InsuranceReport() {
             <NavBar />
             <Text style={styles.header}>Insurance Detail Report</Text>
 
-            {/* Vertical Scrolling */}
+
             <ScrollView style={styles.verticalScroll} nestedScrollEnabled>
 
                 {/* Horizontal Scrolling */}
