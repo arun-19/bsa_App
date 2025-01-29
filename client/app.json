@@ -4,7 +4,7 @@
     "slug": "sample",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/bharani-small.png",
+    "icon": "./assets/icon.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
