@@ -41,7 +41,7 @@ export async function login(req, res) {
 export async function create(req, res) {
     const connection = await getConnection();
     const { username, password, checkboxes, email, role } = req.body;
-    console.log(checkboxes, 'check');
+    console.log(role, 'check');
 
     const roles = checkboxes || [].map((item) => item.id)
     console.log(roles, 'roles');
@@ -93,7 +93,7 @@ export async function get(req, res) {
         const result = await connection.execute(sql)
         const resp = result.rows.map(user => ({
             userName: user[0], password: user[1],
-            email: user[2], role: user[2]
+            email: user[2], role: user[3]
         }))
         console.log(resp, '102');
 
@@ -181,18 +181,25 @@ export async function getDesignation(req, res) {
 export async function getRolesOnPage(req, res) {
     const connection = await getConnection(res)
     try {
-        const { selectedRole } = req.query;
+        const { selectedRole, userName } = req.query;
         console.log(selectedRole, 'selectedRole');
-
-        const sql = `SELECT * FROM mobuserlog where mobuserlog.role ='${selectedRole}'`
+        let sql = ''
+        {
+            selectedRole ? sql = `SELECT * FROM mobuserlog where mobuserlog.role ='${selectedRole}'` :
+                sql = `SELECT ML.* , MU.userName 
+              FROM mobuserlog ML
+LEFT JOIN mobileuser MU ON MU.ROLE = ML.ROLE
+where  MU.USERNAME  ='${userName}' AND isDefault <> 0`
+        }
         console.log(sql, '200');
         const result = await connection.execute(sql)
 
         const resp = result.rows.map(role => ({
             id: role[0], roleId: role[1], Read: role[2], Update: role[3], Delete: role[4], Create: role[5],
-            Admin: role[6], Pages: role[7]
+            Admin: role[6], Pages: role[7], username: role[8]
 
         }))
+        console.log(resp, 'resap');
 
         return res.json({ statusCode: 0, data: resp })
     }

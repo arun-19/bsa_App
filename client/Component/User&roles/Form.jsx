@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions, ScrollView } from "react-native";
 import Toast from "react-native-toast-message";
 
-import { useCreateUserMutation, useGetUserDetQuery, useGetUsersQuery } from "../../redux/service/user";
+import { useCreateUserMutation, useGetDesignationQuery, useGetUserDetQuery, useGetUsersQuery } from "../../redux/service/user";
 import tabs from "../tabIndex";
 import { Dropdown } from "../../ReusableComponents/inputs";
 import FloatingButton from "../Buttons/Buttons";
+import PullToRefresh from "../../ReusableComponents/PullToRefresh";
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,34 +15,15 @@ const Form = ({ closeModal, onClose, userDet }) => {
     const [password, setPassword] = useState("");
     const [checkboxes, setCheckboxes] = useState({});
     const [selectedEmply, setSelectedEmply] = useState('');
-    const [role, setRole] = useState('');
     const [email, setEmail] = useState('');
-
     const [createUser, { isLoading, isError, error }] = useCreateUserMutation();
     const { data: tableData } = useGetUsersQuery({})
-
+    const [selectedRole, setSelectedRole] = useState(null);
     console.log(tableData, 'tableData');
-
-    useEffect(() => {
-        if (selectedEmply && userDet) {
-            const selectedEmployee = userDet?.data?.find(item => item.id === selectedEmply);
+    const { data: role, refetch } = useGetDesignationQuery();
 
 
-            if (selectedEmployee) {
-                setRole(selectedEmployee.role);
-            } else {
-                setRole("");
-            }
-        }
-    }, [selectedEmply, userDet]);
 
-
-    const handleCheckboxChange = (id) => {
-        setCheckboxes((prev) => ({
-            ...prev,
-            [id]: !prev[id],
-        }));
-    };
 
     const validateData = (data) => {
 
@@ -70,7 +52,7 @@ const Form = ({ closeModal, onClose, userDet }) => {
         // const selectedCheckboxes = tabs.filter(
         //     (checkbox) => checkboxes[checkbox.name]
         // ).map((checkbox) => ({ id: checkbox.name, label: checkbox.label }));
-        const formData = { username, password, email, role };
+        const formData = { username, password, email, role: selectedRole };
 
         if (!validateData(formData)) {
             Toast.show({
@@ -99,22 +81,32 @@ const Form = ({ closeModal, onClose, userDet }) => {
 
     return (
         <ScrollView contentContainerStyle={styles.formContainer}>
+
             <View style={styles.inputContainer}>
                 <View >
-                    <Dropdown
-                        selected={selectedEmply}
-                        label={<Text>Select Employee</Text>}
-                        setSelected={setSelectedEmply}
-                        options={userDet}
-                    />
-                    <View>
-                        <Text style={styles.label}>Role:</Text>
-                        <TextInput
+
+                    <View style={
+                        styles.dropdownCon
+                    }>
+                        <Dropdown
+                            selected={selectedEmply}
+                            label={<Text>Select Employee</Text>}
+                            setSelected={setSelectedEmply}
+                            options={userDet}
+                        />
+                        {/* <TextInput
                             value={role}
                             onChangeText={setRole}
                             style={styles.input}
                             placeholder="Role"
                             editable={false}
+                        /> */}
+                        <Dropdown
+                            selected={selectedRole}
+                            label={<Text>Select Role:</Text>}
+                            setSelected={setSelectedRole}
+                            options={role}
+                            style={styles.dropdown}
                         />
                     </View>
                 </View>
@@ -315,6 +307,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         textAlign: 'right',
         fontSize: 12,
+    },
+    dropdownCon: {
+        flex: 1,
+        flexDirection: "row"
     }
 });
 

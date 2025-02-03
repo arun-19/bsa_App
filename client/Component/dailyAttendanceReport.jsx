@@ -4,10 +4,13 @@ import { useDeviceOrientation } from '@react-native-community/hooks';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import NavBar from './Navbar';
+import { useGetMisDashboardOrdersInHandMonthWiseQuery } from '../redux/service/misDashboardService';
 
-export default function InsuranceReport() {
+export default function AttendanceReport() {
     const orientation = useDeviceOrientation();
-    const tableData = useSelector(state => state.tableData.tableData);
+    const { data: data } = useGetMisDashboardOrdersInHandMonthWiseQuery({ params: {} });
+
+    const tableData = data?.data || []
 
     const getDueDaysStyle = (due) => {
         return due < 30 ? styles.dueDaysWarning : styles.cellNum;
@@ -16,16 +19,11 @@ export default function InsuranceReport() {
     return (
         <View style={styles.pageContainer}>
             <NavBar />
-            <Text style={styles.header}>Insurance Detail Report</Text>
-
+            <Text style={styles.header}>Attendance Report</Text>
 
             <ScrollView style={styles.verticalScroll} nestedScrollEnabled>
-
                 {/* Horizontal Scrolling */}
-                <ScrollView
-                    horizontal
-                    contentContainerStyle={styles.scrollContainer}
-                >
+                <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.tableContainer}>
                         {/* Table Header */}
                         <View style={[styles.row, styles.headerRow]}>
@@ -33,32 +31,40 @@ export default function InsuranceReport() {
                                 <Text style={styles.headerText}>Sno</Text>
                             </View>
                             <View style={[styles.cell, { width: 100 }]}>
-                                <Text style={styles.headerText}>Asset</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 90 }]}>
-                                <Text style={styles.headerText}>Vehicle No</Text>
+                                <Text style={styles.headerText}>Band ID</Text>
                             </View>
                             <View style={[styles.cell, { width: 100 }]}>
-                                <Text style={styles.headerText}>Vehicle Name</Text>
-                            </View>
-
-                            <View style={[styles.cell, { width: 140 }]}>
-                                <Text style={styles.headerText}>Policy No</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 240 }]}>
-                                <Text style={styles.headerText}>Insured By</Text>
+                                <Text style={styles.headerText}>Department</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Valid From</Text>
+                                <Text style={styles.headerText}>Abs Female</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Valid To</Text>
+                                <Text style={styles.headerText}>Abs Male</Text>
                             </View>
-                            <View style={[styles.cell, { width: 60 }]}>
-                                <Text style={styles.headerText}>Premium</Text>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Abs Total</Text>
                             </View>
-                            <View style={[styles.cell, { width: 50 }]}>
-                                <Text style={styles.headerText}>Due</Text>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Ap Female</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Ap Male</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Ap Total</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Gender Total</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Pref Female</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Pref Male</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Pref Total</Text>
                             </View>
                         </View>
 
@@ -69,39 +75,47 @@ export default function InsuranceReport() {
                                     key={index}
                                     style={[
                                         styles.row,
-                                        index % 2 === 0 ? styles.evenRow : styles.oddRow
+                                        index % 2 === 0 ? styles.evenRow : styles.oddRow,
                                     ]}
                                 >
                                     <View style={[styles.cell, { width: 30 }]}>
-                                        <Text style={styles.cellText}>{item.sno}</Text>
+                                        <Text style={styles.cellText}>{index + 1}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 100 }]}>
-                                        <Text style={styles.cellText}>{item.discoFinAsset}</Text>
-                                    </View>
-                                    <View style={[styles.cell, { width: 90 }]}>
-                                        <Text style={getDueDaysStyle(item.dueDays)}>{item.vehNo}</Text>
+                                        <Text style={styles.cellText}>{item.BANDID}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 100 }]}>
-                                        <Text style={getDueDaysStyle(item.dueDays)}>{item.vehName}</Text>
-                                    </View>
-
-                                    <View style={[styles.cell, { width: 140 }]}>
-                                        <Text style={styles.cellText}>{item.policyNo}</Text>
-                                    </View>
-                                    <View style={[styles.cell, { width: 240 }]}>
-                                        <Text style={styles.cellText}>{item.insuredby}</Text>
+                                        <Text style={styles.cellText}>{item.DEPTNAME}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{moment(item.validFrom).format('DD/MM/YYYY')}</Text>
+                                        <Text style={styles.cellText}>{item.ABSFEMALE}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{moment(item.validTo).format('DD/MM/YYYY')}</Text>
+                                        <Text style={styles.cellText}>{item.ABSMALE}</Text>
                                     </View>
-                                    <View style={[styles.cellNumber, { width: 60 }]}>
-                                        <Text style={styles.cellNum}>{item.totalPremium}</Text>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.ABTOT}</Text>
                                     </View>
-                                    <View style={[styles.cellNumber, { width: 50 }]}>
-                                        <Text style={getDueDaysStyle(item.dueDays)}>{item.dueDays}</Text>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.APFEMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.APMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.APTOT}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.GENDERTOT}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.PREFEMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.PREMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.PRETOT}</Text>
                                     </View>
                                 </View>
                             ))

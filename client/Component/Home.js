@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, Image } fr
 
 import NavBar from './Navbar';
 import { useDispatch, useSelector } from 'react-redux';
-import InsuranceReport from './insuranceReport';
 import { useGetMisDashboardOrdersInHandQuery } from '../redux/service/misDashboardService';
 import { setCountUnder20DueDays } from '../redux/Slices/dueDaysSlice';
 import { setTableData } from '../redux/Slices/insuranceDataSlice';
@@ -21,6 +20,7 @@ export default function Home({ navigation }) {
         navigation.navigate(`${selectedAction}`)
 
     }
+    console.log(selectedAction, 'selectedAction');
 
     const handleClick = (label, action) => {
         setSelectedCard(label);
@@ -30,7 +30,6 @@ export default function Home({ navigation }) {
     };
 
     const dispatch = useDispatch();
-    console.log(insurancedata, 'insurancedata');
 
     useEffect(() => {
         if (insurancedata?.data) {
@@ -47,7 +46,7 @@ export default function Home({ navigation }) {
                 dueDays: item.dueDays,
             }));
             dispatch(setTableData(formattedData))
-            const count = formattedData.filter(item => item.dueDays < 20).length;
+            const count = formattedData.filter(item => item.dueDays < 30).length;
             dispatch(setCountUnder20DueDays(count))
 
         }
@@ -55,8 +54,8 @@ export default function Home({ navigation }) {
 
     const cardLabels = [
         { label: 'Insurance Details', action: 'INSURANCEREPORT', image: require('./img/insurance.png'), notify: countUnder20DueDays },
-        { label: 'Apply Leave ', action: 'leave', image: require('./img/exit.png') },
-        { label: 'Attendance Register', action: 'punch', image: require('./img/attendance.png') },
+        { label: 'Attendance Report ', action: 'ATTENDANCEREPORT', image: require('./img/exit.png') },
+        { label: 'Absence Register', action: 'ABSENCEREGISTER', image: require('./img/attendance.png') },
         { label: 'Available Leave ', action: 'punch', image: require('./img/convenience.png') },
         { label: 'Leave register', action: 'punch', image: require('./img/schedule.png') },
         { label: 'On Duty', action: 'punch', image: require('./img/duty.png') },

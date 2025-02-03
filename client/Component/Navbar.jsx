@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import Icon from 'react-native-vector-icons/FontAwesome';
+import LogoutButton from '../ReusableComponents/LogOutButton';
 
 export default function NavBar() {
     const navigation = useNavigation(); // Use the hook to get the navigation object
@@ -17,9 +18,10 @@ export default function NavBar() {
                 source={require('./img/bharani-small.png')}
             />
 
-            <TouchableOpacity onPress={handleNavigate}>
+            <View style={styles.log}> <TouchableOpacity onPress={handleNavigate}>
                 <Icon name="user" size={30} color="white" />
             </TouchableOpacity>
+                <LogoutButton />  </View>
         </View>
     );
 }
@@ -58,4 +60,10 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 5,
     },
+    log: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+
+    }
 });

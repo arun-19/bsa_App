@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -10,24 +10,28 @@ import {
     Animated,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useLoginUserMutation } from '../redux/service/user';
+import { useGetRolesOnPageQuery, useLoginUserMutation } from '../redux/service/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur'; // For glassy effect
+import { BlurView } from 'expo-blur';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/Slices/authSlice';
 
 function LoginScreen({ navigation }) {
+    const dispatch = useDispatch();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [loginUser, { isLoading }] = useLoginUserMutation();
-    const [fadeAnim] = useState(new Animated.Value(0)); // For fade-in animation
+    const [fadeAnim] = useState(new Animated.Value(0));
 
-    React.useEffect(() => {
-        // Fade-in animation when the component mounts
+    // Fetch roles on page based on username
+
+
+    useEffect(() => {
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 1000,
-
             useNativeDriver: true,
         }).start();
     }, []);
@@ -40,18 +44,20 @@ function LoginScreen({ navigation }) {
         return true;
     };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-
+    const handleLogin = async () => {
         setError(null);
-        if (!validateInputs()) return;
+        if (!username || !password) {
+            Alert.alert('Validation Error', 'Username and password are required');
+            return;
+        }
         try {
-            console.log('Sending login request with:', { username, password });
+            // Send login request
             const data = await loginUser({ username, password }).unwrap();
-            console.log(data);
             if (data.message === 'Login Successfull') {
                 await AsyncStorage.setItem('userName', username);
+
                 navigation.navigate('HOME');
+
             } else {
                 setError('Login failed, please try again.');
             }
@@ -72,8 +78,6 @@ function LoginScreen({ navigation }) {
             <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
                 {/* Glassy Effect */}
                 <BlurView intensity={20} tint="light" style={styles.glassCard}>
-
-
                     {error && <Text style={styles.errorText}>{error}</Text>}
 
                     <TextInput
@@ -98,10 +102,6 @@ function LoginScreen({ navigation }) {
                         disabled={isLoading}
                     >
                         <Text style={styles.buttonText}>{isLoading ? 'Loading...' : 'Login'}</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-
                     </TouchableOpacity>
                 </BlurView>
             </Animated.View>
@@ -133,12 +133,12 @@ const styles = StyleSheet.create({
         width: '90%',
         maxWidth: 400,
         borderRadius: 20,
-        overflow: 'hidden', // Ensures the blur effect doesn't overflow
+        overflow: 'hidden',
     },
     glassCard: {
         padding: 20,
         borderRadius: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent background
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     logo: {
         width: 160,
@@ -148,8 +148,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         backgroundColor: 'white',
         paddingHorizontal: 100,
-        borderRadius: 5
-
+        borderRadius: 5,
     },
     input: {
         width: '100%',
@@ -159,7 +158,7 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         borderRadius: 10,
         fontSize: 16,
-        backgroundColor: 'rgba(205, 255, 255, 0.8)', // Semi-transparent input background
+        backgroundColor: 'rgba(205, 255, 255, 0.8)',
         color: '#333',
     },
     errorText: {
@@ -182,24 +181,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    signupText: {
-        marginTop: 15,
-        color: '#6a11cb',
-        fontSize: 16,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
     footer: {
         position: 'absolute',
         bottom: 0,
-
-
         justifyContent: 'center',
-    },
-    footerText: {
-        color: '#333',
-        fontSize: 14,
-        fontWeight: '500',
     },
 });
 

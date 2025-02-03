@@ -38,7 +38,7 @@ const MisDashboard = createApi({
         getMisDashboardOrdersInHandMonthWise: builder.query({
             query: ({ params }) => {
                 return {
-                    url: MIS_DASHBOARD + "/ordersInHandMonthWise",
+                    url: MIS_DASHBOARD + "/getTotalStrength",
                     method: 'GET',
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',

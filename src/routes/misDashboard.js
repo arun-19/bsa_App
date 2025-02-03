@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue, getInsuranceData, getOrdersInHandMonthWise, getShortShipmentRatio, getYearlyComp } from '../services/misDashboard.service.js';
+import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue, getInsuranceData, getShortShipmentRatio, getTotalStrength, getYearlyComp } from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -9,7 +9,7 @@ router.get('/', get);
 router.get('/getInsuranceData', getInsuranceData);
 
 
-router.get('/ordersInHandMonthWise', getOrdersInHandMonthWise);
+router.get('/getTotalStrength', getTotalStrength);
 
 router.get('/actualVsBudgetValueMonthWise', getActualVsBudgetValueMonthWise);
 

@@ -16,6 +16,7 @@ export default function UserCreation() {
     const [roleName, setRoleName] = useState(null);
     const { data: role, refetch } = useGetDesignationQuery();
     const { data: roleOnPage, refetch: userRefetch } = useGetRolesOnPageQuery({ params: { selectedRole: selectedRole } });
+    console.log(roleOnPage, 'roleOnPage');
 
     function onNew() {
         setPermissions({})
