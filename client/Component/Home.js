@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, Image } from 'react-native';
-
-
 import NavBar from './Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetMisDashboardOrdersInHandQuery } from '../redux/service/misDashboardService';
 import { setCountUnder20DueDays } from '../redux/Slices/dueDaysSlice';
 import { setTableData } from '../redux/Slices/insuranceDataSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const { width, height } = Dimensions.get('window');
 
 export default function Home({ navigation }) {
@@ -18,7 +18,6 @@ export default function Home({ navigation }) {
 
     function openPage(selectedAction) {
         navigation.navigate(`${selectedAction}`)
-
     }
     console.log(selectedAction, 'selectedAction');
 
@@ -48,7 +47,6 @@ export default function Home({ navigation }) {
             dispatch(setTableData(formattedData))
             const count = formattedData.filter(item => item.dueDays < 30).length;
             dispatch(setCountUnder20DueDays(count))
-
         }
     }, [insurancedata]);
 
@@ -63,33 +61,47 @@ export default function Home({ navigation }) {
         { label: 'Advance register', action: 'punch', image: require('./img/payment.png') },
         { label: 'Pay Slip', action: 'punch', image: require('./img/salary-voucher.png') },
     ];
+    const [username, setUsername] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const storedUser = await AsyncStorage.getItem('userName');
+            setUsername(storedUser); // Set the username in state
+        };
+        fetchUser();
+    }, []);
+    console.log(username, 'usersdfdsf');
 
     return (
         <View >
             <NavBar />
+            <View style={styles.labelContainer}>
+                <Text style={styles.label}>Welcome : <Text style={styles.user}>{username}</Text></Text>
 
+
+            </View>
+            {console.log(username, 'users')
+            }
             <View style={styles.container}>
                 <View style={styles.cardContainer}>
                     {cardLabels.map((item, index) => (
-                        <View>
+                        <View key={index}>
                             <TouchableOpacity
-                                key={index}
                                 style={styles.card}
                                 onPress={() => handleClick(item.label, item.action)}
                             >
-
                                 {item.notify ? <Text style={styles.notify}>{item.notify}</Text> : ''}
 
                                 <Image
                                     style={styles.title}
                                     source={item.image}
                                 />
-                                {/* Ensure Text components are wrapped properly */}
                                 <Text style={styles.cardText}>{item.label}</Text>
                             </TouchableOpacity>
                         </View>
                     ))}
-                </View>            </View>
+                </View>
+            </View>
         </View>
     );
 }
@@ -100,6 +112,25 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#f8f8f8',
         marginTop: 10,
+    },
+    labelContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        padding: 15,
+        gap: 10, // Added gap to ensure spacing between labels
+    },
+    label: {
+        fontSize: 24,        // Larger text size
+        fontWeight: 'bold',  // Make the text bold
+        color: '#333',       // Text color (you can customize this)
+        marginTop: 10,       // Spacing from the top
+        marginLeft: 20,      // Add some horizontal spacing (optional)
+        marginBottom: 10,    // Bottom spacing
+    },
+    user: {
+        fontSize: 26,
+        color: '#21618c',
     },
     summary: {
         backgroundColor: '#f8f8f8',
@@ -153,7 +184,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-
     },
     card: {
         width: width * 0.28,

@@ -4,7 +4,7 @@
     "slug": "sample",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.jpg",
+    "icon": "./assets/Untitled design (1).png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.jpg",
+        "foregroundImage": "./assets/Untitled design (1).png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.pinnacle_systems.BharaniPriya"
