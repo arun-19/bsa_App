@@ -87,7 +87,12 @@ export default function Home({ navigation }) {
                     {cardLabels.map((item, index) => (
                         <View key={index}>
                             <TouchableOpacity
-                                style={styles.card}
+                                style={[
+                                    styles.card,
+                                    {
+                                        backgroundColor: item.action === 'INSURANCEREPORT' ? '#ffffff' : '#f0f0f0', // Set custom color for other cards
+                                    },
+                                ]}
                                 onPress={() => handleClick(item.label, item.action)}
                             >
                                 {item.notify ? <Text style={styles.notify}>{item.notify}</Text> : ''}
@@ -102,6 +107,7 @@ export default function Home({ navigation }) {
                     ))}
                 </View>
             </View>
+
         </View>
     );
 }
