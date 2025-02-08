@@ -9,6 +9,7 @@ import { useGetMisDashboardOrdersInHandMonthWiseQuery } from '../redux/service/m
 export default function AttendanceReport() {
     const orientation = useDeviceOrientation();
     const { data: data } = useGetMisDashboardOrdersInHandMonthWiseQuery({ params: {} });
+    console.log(data, 'data');
 
     const tableData = data?.data || []
 

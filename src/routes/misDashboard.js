@@ -11,6 +11,8 @@ router.get('/getInsuranceData', getInsuranceData);
 
 router.get('/getTotalStrength', getTotalStrength);
 
+
+
 router.get('/actualVsBudgetValueMonthWise', getActualVsBudgetValueMonthWise);
 
 router.get('/yearlyComp', getYearlyComp)

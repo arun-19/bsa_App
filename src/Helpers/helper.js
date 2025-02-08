@@ -23,3 +23,7 @@ export function getNumberFromAlphaNumeric(txt) {
 export const currentDate = moment().format('DD/MM/YYYY');
 
 
+export const tommorowDate = moment().add(1, 'days').format('DD/MM/YYYY');
+
+
+

@@ -32,7 +32,7 @@ const App = () => {
   const { data: rolesOnPage } = useGetRolesOnPageQuery({ params: { userName: tempUser } });
 
   console.log(rolesOnPage, "rolesOnPage")
-  console.log(tempUser, "tempUser")
+
 
   const roles = rolesOnPage?.data || []
 
