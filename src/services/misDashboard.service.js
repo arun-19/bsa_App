@@ -1,8 +1,10 @@
+import { log } from "console";
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
 import { currentDate, tommorowDate } from "../Helpers/helper.js";
 import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss }
     from "../queries/misDashboard.js";
+import moment from "moment";
 
 
 export async function get(req, res) {
@@ -82,7 +84,10 @@ ORDER BY DUEDAYS)AA
 export async function getTotalStrength(req, res) {
     const connection = await getConnection(res)
     console.log("hit");
-
+    const { date } = req.query;
+    console.log(date, 'date');
+    const currentDate = moment(date).format('DD/MM/YYYY');
+    const tommorowDate = moment(date).add(1, 'days').format('DD/MM/YYYY');
     try {
         const sql =
             `
@@ -228,6 +233,7 @@ ORDER BY A.BANDID,A.DEPTNAME
         let result = await connection.execute(sql,
             params
         );
+        console.log(result, 'res');
 
         result = result.rows.map(row => ({
             BANDID: row[0],
@@ -243,7 +249,8 @@ ORDER BY A.BANDID,A.DEPTNAME
             PRETOT: row[10],
             APMALE: row[11],
             APFEMALE: row[12],
-            TOTABPER: row[13]
+            TOTABPER: row[13],
+
 
         }))
 

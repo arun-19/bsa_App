@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import HomeCards from './Punch';
 
 const CustomCard = ({ title, onPress, openModel, closeModel, navigation }) => (
     <View style={styles.cardSection}>
         <TouchableOpacity style={styles.card} onPress={onPress}>
             <Text style={styles.cardTitle}>{title}</Text>
+            <Image
+                source={require('./img/arrow-down-sign-to-navigate.png')}
+                style={styles.cardImage}
+
+            />
+
         </TouchableOpacity>
 
         {/* Conditionally render HomeCards based on openModel */}
@@ -24,6 +30,9 @@ const styles = StyleSheet.create({
         marginBottom: 10, // Adjust bottom margin for each card
     },
     card: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: 'center',
         backgroundColor: '#ffffff',
         borderRadius: 8,
         padding: 15,
@@ -43,5 +52,10 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'space-between',
     },
+    cardImage: {
+        width: 10,
+        height: 10,
+
+    }
 });
 export default CustomCard;

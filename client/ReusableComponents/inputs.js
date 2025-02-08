@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-ui-datepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
+import moment from 'moment';
 
 export const Dropdown = ({ selected, setSelected, options, label }) => {
     const [open, setOpen] = useState(false);
@@ -36,10 +39,61 @@ export const Dropdown = ({ selected, setSelected, options, label }) => {
     );
 };
 
+export const DateInput = ({ date, setDate }) => {
+
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShow(false);
+        setDate(currentDate);
+    };
+
+    const showDatepicker = () => {
+        setShow(true);
+    };
+
+    return (
+        <View
+            style={styles.container}
+        >
+            <Text>Select Date : </Text>
+            <TouchableOpacity
+                style={styles.dateInputContainer}
+                onPress={showDatepicker}>  <Text>{moment(date).format('DD/MM/YYYY')}</Text>
+                {show && (
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode="date"
+                        is24Hour={false}
+                        display="default"
+                        onChange={onChange}
+                        dateFormat='
+                        '
+                    />
+                )}</TouchableOpacity>
+
+        </View>
+    );
+};
+
+
 const styles = StyleSheet.create({
     container: {
-        width: 170,
-        paddingRight: 2
+        width: 150,
+        paddingRight: 2,
+        flexDirection: 'row'
+    },
+    dateInputContainer: {
+        width: 75,
+        height: 20,
+        backgroundColor: '#fff',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        paddingHorizontal: 4,
+        marginBottom: 5,
+        borderRadius: 5
 
     },
     label: {

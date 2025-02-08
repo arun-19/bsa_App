@@ -1,27 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useDeviceOrientation } from '@react-native-community/hooks';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import NavBar from './Navbar';
 import { useGetMisDashboardOrdersInHandMonthWiseQuery } from '../redux/service/misDashboardService';
+import { DateInput } from '../ReusableComponents/inputs';
 
 export default function AttendanceReport() {
+    const [date, setDate] = useState(new Date());
     const orientation = useDeviceOrientation();
-    const { data: data } = useGetMisDashboardOrdersInHandMonthWiseQuery({ params: {} });
-    console.log(data, 'data');
+    console.log(date, 'date');
+
+    const { data: data } = useGetMisDashboardOrdersInHandMonthWiseQuery({ params: { date: date } });
 
     const tableData = data?.data || []
-
-    const getDueDaysStyle = (due) => {
-        return due < 30 ? styles.dueDaysWarning : styles.cellNum;
-    };
 
     return (
         <View style={styles.pageContainer}>
             <NavBar />
-            <Text style={styles.header}>Attendance Report</Text>
-
+            <View style={styles.topBar}><Text style={styles.header}>Attendance Report</Text>
+                <DateInput date={date} setDate={setDate} /></View>
             <ScrollView style={styles.verticalScroll} nestedScrollEnabled>
                 {/* Horizontal Scrolling */}
                 <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
@@ -32,40 +31,38 @@ export default function AttendanceReport() {
                                 <Text style={styles.headerText}>Sno</Text>
                             </View>
                             <View style={[styles.cell, { width: 100 }]}>
-                                <Text style={styles.headerText}>Band ID</Text>
+                                <Text style={styles.headerText}>Category</Text>
                             </View>
                             <View style={[styles.cell, { width: 100 }]}>
                                 <Text style={styles.headerText}>Department</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Abs Female</Text>
+                                <Text style={styles.headerText}> Total</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}> Male</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}> Female</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
                                 <Text style={styles.headerText}>Abs Male</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
+                                <Text style={styles.headerText}>Abs Female</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 80 }]}>
                                 <Text style={styles.headerText}>Abs Total</Text>
                             </View>
+
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Ap Female</Text>
+                                <Text style={styles.headerText}>Pre Female</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Ap Male</Text>
+                                <Text style={styles.headerText}>Pre Male</Text>
                             </View>
                             <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Ap Total</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Gender Total</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Pref Female</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Pref Male</Text>
-                            </View>
-                            <View style={[styles.cell, { width: 80 }]}>
-                                <Text style={styles.headerText}>Pref Total</Text>
+                                <Text style={styles.headerText}>Pre Total</Text>
                             </View>
                         </View>
 
@@ -89,26 +86,24 @@ export default function AttendanceReport() {
                                         <Text style={styles.cellText}>{item.DEPTNAME}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{item.ABSFEMALE}</Text>
+                                        <Text style={styles.cellText}>{item.GENDERTOT}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.TOTALMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.TOTALFEMALE}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 80 }]}>
                                         <Text style={styles.cellText}>{item.ABSMALE}</Text>
                                     </View>
                                     <View style={[styles.cell, { width: 80 }]}>
+                                        <Text style={styles.cellText}>{item.ABSFEMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 80 }]}>
                                         <Text style={styles.cellText}>{item.ABTOT}</Text>
                                     </View>
-                                    <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{item.APFEMALE}</Text>
-                                    </View>
-                                    <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{item.APMALE}</Text>
-                                    </View>
-                                    <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{item.APTOT}</Text>
-                                    </View>
-                                    <View style={[styles.cell, { width: 80 }]}>
-                                        <Text style={styles.cellText}>{item.GENDERTOT}</Text>
-                                    </View>
+
                                     <View style={[styles.cell, { width: 80 }]}>
                                         <Text style={styles.cellText}>{item.PREFEMALE}</Text>
                                     </View>
@@ -133,9 +128,15 @@ export default function AttendanceReport() {
 const styles = StyleSheet.create({
     pageContainer: {
         flex: 1,
-        paddingTop: 10,
+        paddingTop: 5,
         paddingHorizontal: 5,
         backgroundColor: '#fff',
+    },
+    topBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: 10,
     },
     header: {
         fontSize: 20,

@@ -53,21 +53,21 @@ export default function Home({ navigation }) {
                 />
 
                 {/* Payroll Card */}
-                <CustomCard
+                {/* <CustomCard
                     title="Payroll"
                     onPress={() => toggleModal('payroll')}
                     openModel={payrollOpen}
                     closeModel={() => setPayrollOpen(false)}
                     navigation={navigation}
-                />
+                /> */}
 
                 {/* Report Card */}
-                <CustomCard
+                {/* <CustomCard
                     title="Report"
                     onPress={() => toggleModal('report')}
                     openModel={reportOpen}
                     closeModel={() => setReportOpen(false)}
-                />
+                /> */}
             </View>
         </View>
     );
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f8f8f8',
+
     },
     labelContainer: {
         flexDirection: 'row',
