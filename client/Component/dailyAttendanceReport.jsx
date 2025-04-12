@@ -16,17 +16,19 @@ export default function AttendanceReport() {
 
     const tableData = data?.data || []
 
-    return (
+    return (<> <NavBar />
         <View style={styles.pageContainer}>
-            <NavBar />
-            <View style={styles.topBar}><Text style={styles.header}>Attendance Report</Text>
-                <DateInput date={date} setDate={setDate} /></View>
+           
+            <View style={styles.topBar}>
+                <Text style={styles.header}>Attendance Report</Text>
+                <DateInput date={date} setDate={setDate} />
+                </View>
             <ScrollView style={styles.verticalScroll} nestedScrollEnabled>
-                {/* Horizontal Scrolling */}
+            
                 <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.tableContainer}>
                         {/* Table Header */}
-                        <View style={[styles.row, styles.headerRow]}>
+                      {/*  <View style={[styles.row, styles.headerRow]}>
                             <View style={[styles.cell, { width: 30 }]}>
                                 <Text style={styles.headerText}>Sno</Text>
                             </View>
@@ -64,10 +66,11 @@ export default function AttendanceReport() {
                             <View style={[styles.cell, { width: 80 }]}>
                                 <Text style={styles.headerText}>Pre Total</Text>
                             </View>
-                        </View>
+                        </View>}
 
                         {/* Table Data */}
-                        {tableData && tableData.length > 0 ? (
+                        {/*
+                        tableData && tableData.length > 0 ? (
                             tableData.map((item, index) => (
                                 <View
                                     key={index}
@@ -117,11 +120,126 @@ export default function AttendanceReport() {
                             ))
                         ) : (
                             <Text style={styles.noDataText}>No data available</Text>
-                        )}
+                        )
+                        */
+                        }
+
+                     
+                           <View style={[styles.row, styles.headerRow]}>
+                            <View style={[styles.cell, { width: 30 }]}>
+                                <Text style={styles.headerText}>Sno</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 150 }]}>
+                                <Text style={styles.headerText}>Category</Text>
+                            </View>
+                            <View style={[styles.cell, { width: 150 }]}>
+                                <Text style={styles.headerText}>Department</Text>
+                            </View>
+                          
+                            <View style={[styles.cell, { width: 200 }]}>
+                                <View style={[styles?.row_header,{ width: 200 }]}>
+                                <Text style={styles.headerText}>Male</Text>
+                                </View>
+
+                                <View style={[styles?.row,{ width: 200 }]}>
+
+                                  <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Total</Text>
+                                     </View>
+
+                                  <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Pre</Text>
+                                     </View>
+
+
+                                     <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Abs</Text>
+                                     </View>
+                                 </View>
+                            </View>
+
+
+                            <View style={[styles.cell, { width: 200 }]}>
+                                <View style={[styles?.row_header, { width: 200 }]}>
+                                <Text style={styles.headerText}>Female</Text>
+                                </View>
+                                <View style={[styles?.row,{alignSelf:"stretch",height:"fit"}]}>
+
+                                  <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Total</Text>
+                                     </View>
+
+                                  <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Pre</Text>
+                                     </View>
+
+
+                                     <View style={[styles.cell, { width: 66.6 }]}>
+                                   <Text style={styles.headerText}>Abs</Text>
+                                     </View>
+                                     </View>
+                            </View>
+                            </View>
+
+                             {/* Table Data */}
+                        {
+                        tableData && tableData.length > 0 ? (
+                            tableData.map((item, index) => (
+                                <>
+                                <View
+                                    key={index}
+                                    style={[
+                                        styles.row,
+                                    ]}
+                                  >
+                                     <View style={[styles.cell, { width: 30 }]}>
+                                        <Text style={styles.cellText}>{index + 1}</Text>
+                                    </View>
+                                       <View style={[styles.cell, { width: 150 }]}>
+                                      <Text style={styles.cellText}>{item.BANDID}</Text>
+                                       </View>
+                                       <View style={[styles.cell, { width: 150 }]}>
+                                        <Text style={styles.cellText}>{item.DEPTNAME}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{Number(item?.PREMALE)+Number(item.ABSMALE)}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{item.PREMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{item.ABSMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{Number(item.PREFEMALE)+Number(item?.ABSFEMALE)}</Text>
+                                    </View>
+
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{item.PREFEMALE}</Text>
+                                    </View>
+                                    <View style={[styles.cell, { width: 66.6 }]}>
+                                        <Text style={styles.cellText}>{item?.ABSFEMALE}</Text>
+                                    </View>
+                                    
+                                </View>
+
+                             
+
+                             
+                                
+                                </>
+                            ))
+                        ) : (
+                            <Text style={styles.noDataText}>No data available</Text>
+                        )
+                        
+                        }
+                           
                     </View>
                 </ScrollView>
             </ScrollView>
         </View>
+        </>
     );
 }
 
@@ -135,7 +253,6 @@ const styles = StyleSheet.create({
     topBar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
         paddingTop: 10,
     },
     header: {
@@ -153,13 +270,21 @@ const styles = StyleSheet.create({
     },
     tableContainer: {
         flex: 1,
+        width:"100%",
         borderWidth: 1,
         borderColor: '#ddd',
+        
     },
     row: {
         flexDirection: 'row',
         borderBottomWidth: 1,
+
         borderColor: '#ddd',
+    },row_header:{
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: '#ddd',
+        justifyContent:"center"
     },
     evenRow: {
         backgroundColor: '#f9f9f9',
@@ -177,11 +302,14 @@ const styles = StyleSheet.create({
         borderRightWidth: 1,
         borderColor: '#ddd',
         paddingVertical: 6,
+        textAlign:"center",
     },
     headerText: {
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: "justify",
         fontSize: 14,
+        alignItems:"center",
+
     },
     cellText: {
         textAlign: 'center',

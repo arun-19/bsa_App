@@ -376,6 +376,8 @@ GROUP BY A.COMPCODE
     }
 }
 export async function getBuyerWiseRevenue(req, res) {
+    console.log("buyer");
+    
     const connection = await getConnection(res)
     try {
         const { filterYear, filterSupplier } = req.query;
@@ -428,6 +430,547 @@ ORDER BY 2
         await connection.close()
     }
 }
+
+
+
+
+export async function getTotalHeadCount(req, res) { 
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `SELECT DD.DESIGNATION "label",COUNT(*) CNT "value"
+FROM HREMPLOYMAST BB 
+JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+JOIN GTDESIGNATIONMAST DD ON DD.GTDESIGNATIONMASTID = CC.DESIGNATION
+WHERE CC.DOJ <= (
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+)
+AND (CC.LASTWORKDAY IS NULL OR CC.LASTWORKDAY <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+)
+)
+GROUP BY DD.DESIGNATION
+ORDER BY 1`
+            
+        const result = await connection.execute(sql)
+       
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+export async function getCateogryToTSalary(req,res) { 
+ 
+    const year=req.query.payperiod
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `SELECT  SUM(A.NETPAY ) "NETPAY",A.PAYPERIOD,C.DESIGNATION
+FROM BPPHPAYROLL A 
+JOIN HREMPLOYDETAILS B ON A.EMPID = B.IDCARD
+JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID = B.DESIGNATION
+WHERE A.PAYPERIOD=:PAYPERIOD 
+AND A.PCTYPE = 'ACTUAL'
+GROUP BY A.PAYPERIOD,C.DESIGNATION
+ORDER BY C.DESIGNATION`
+            console.log(sql,year);
+            
+        const result = await connection.execute(sql,{payperiod:year})
+        
+
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getOverTime(req,res) { 
+    const payperiod=req.query.payperiod
+    const IDCARD=req.query.Idcard
+    const COMPCODE=req.query.COMPCODE
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `
+SELECT to_char(A.DOCDATE,'DD-MM-YYYY') DOCDATE,A.OT,
+A.OT*ROUND((
+SELECT CASE WHEN AA.SAL = 'MONTH' THEN SUM(BB.FORMULA)/30 ELSE SUM(BB.FORMULA) END  TOTSAL FROM HREPINFOMAST AA
+JOIN HREPINFODETAIL BB ON AA.HREPINFOMASTID=BB.HREPINFOMASTID
+JOIN HRPAYCOMPONENTS CC ON BB.PAYCODE = CC.HRPAYCOMPONENTSID
+WHERE AA.EFFDATE IN (SELECT MAX (AAA.EFFDATE) FROM HREPINFOMAST AAA  WHERE AAA.IDNO=AA.IDNO AND AAA.ACTUAL = AA.ACTUAL AND AAA.EFFDATE <= A.DOCDATE )
+AND AA.ACTUAL='T' AND AA.IDNO=A.EMPID 
+GROUP BY AA.IDNO,AA.SAL
+)/8,2) OTAMT FROM BPPHDATTA A WHERE A.DOCDATE BETWEEN 
+(
+SELECT MIN(AA.STDT) FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = :PAYPERIOD AND AA.COMPCODE = :COMPCODE
+) AND 
+(
+SELECT MAX(AA.ENDT) FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = :PAYPERIOD AND AA.COMPCODE = :COMPCODE
+)
+AND A.EMPID = :IDCARD
+ AND A.OT > 0 
+ORDER BY A.DOCDATE`
+
+   
+        const result = await connection.execute(sql,{PAYPERIOD:payperiod,IDCARD,COMPCODE})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getEachOverTimeWages(req,res) { 
+    const payperiod=req.query.payperiod
+    const months = [
+        { label: 'January', value: 1},
+        { label: 'February', value:2 },
+        { label: 'March', value: 3 },
+        { label: 'April', value: 4 },
+        { label: 'May', value: 5 },
+        { label: 'June', value: 6},
+        { label: 'July', value:7},
+        { label: 'August', value: 8 },
+        { label: 'September', value: 9},
+        { label: 'October', value: 10},
+        { label: 'November', value:11},
+        { label: 'December', value:12},
+      ];
+
+      var Year=payperiod?.split(" ")[1]
+      var Month=payperiod?.split(" ")[0]
+       var Mothval=months?.find((data)=>data?.label==Month)
+    
+
+    
+    const IDCARD=req.query.Idcard
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `select a.OT,to_char(a.DOCDATE,'DD/MM/YYYY')  DOCDATE,(select max(b.gross) from bpphpayroll b where b.PAYPERIOD=a.PAYPERIOD and b.EMpid=a.EMPID ) gross  from  hrepinfomast h,bpphdatta a where  h.IDNO=a.ID and h.IDNO=:IDCARD  and EXTRACT(month FROM a.DOCDATE )=:MONTH and EXTRACT(year FROM a.DOCDATE )=:YEAR and  a.COMPCODE='BPP' and h.ACTUAL='T' and h.BUYER='F'  order by a.DOCDATE `
+        const result = await connection.execute(sql,{IDCARD,MONTH:Mothval?.value,YEAR:Year})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+export async function getOverTimeWages(req,res) { 
+    const payperiod=req.query.payperiod
+    const IDCARD=req.query.Idcard
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `select  sum(OTWAGES) otwages,payperiod from BPPHPAYROLL where PCTYPE='ACTUAL' and ID=:IDCARD and payperiod=:payperiod group by payperiod`
+
+   
+        const result = await connection.execute(sql,{payperiod,IDCARD})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+
+export async function getMoreDetails(req,res) { 
+    const IDCARD=req.query.Idcard
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            ` select em.AADHAARNAME,em.DISABILITY,em.GENDER,em.LANGUAGE,ed.HOSTEL,ed.ESI,ed.PF,ed.IDCARD,to_char(ed.DOJ,'DD-MM-YYYY') DOJ,ed.SALBY,em.FNAME from HREMPLOYMAST em join HREMPLOYDETAILS ed  on ed.HREMPLOYMASTID=em.HREMPLOYMASTID where ed.IDCARD=:IDCARD`
+   
+        const result = await connection.execute(sql,{IDCARD})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getESI(req,res) { 
+    const payperiod=req.query.payperiod
+    const IDCARD=req.query.Idcard
+    const type=req?.query?.type
+    const connection = await getConnection(res)
+      try {
+
+        var whereparams= type=="M" || !type ? {PAYPERIOD:payperiod,IDCARD} : {IDCARD}
+         const sql = type=="M" || !type ?
+            `SELECT  SUM(A.ESI) "esi",A.PAYPERIOD
+FROM BPPHPAYROLL A WHERE A.EMPID=:IDCARD 
+AND A.PAYPERIOD=:PAYPERIOD 
+AND A.PCTYPE = 'ACTUAL'
+GROUP BY A.PAYPERIOD` :
+`SELECT 
+    SUM(A.ESI) AS "esi", 
+    SUM(A.pf) AS "pf", 
+    A.PAYPERIOD
+FROM 
+    BPPHPAYROLL A 
+WHERE 
+    A.EMPID = :IDCARD 
+    AND A.PCTYPE = 'ACTUAL'
+    AND A.PAYPERIOD LIKE '%${payperiod?.split(" ")[1]}'
+GROUP BY 
+    A.PAYPERIOD`
+
+   
+        const result = await connection.execute(sql,whereparams)
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+export async function getMonthESIPF(req,res) { 
+    const payperiod=req.query.payperiod
+    const IDCARD=req.query.Idcard
+    const type=req?.query?.type
+    const connection = await getConnection(res)
+      try {
+        var whereparams= type=="M" || !type ? {PAYPERIOD:payperiod,IDCARD} : {IDCARD}
+        const sql =type=="M" || !type ?
+            `SELECT  SUM(A.ESI) "esi",SUM(A.pf) "pf",A.PAYPERIOD
+FROM BPPHPAYROLL A WHERE A.EMPID=:IDCARD 
+AND A.PAYPERIOD=:PAYPERIOD 
+AND A.PCTYPE = 'ACTUAL'
+GROUP BY A.PAYPERIOD`:`SELECT 
+    SUM(A.ESI) AS "esi", 
+    SUM(A.pf) AS "pf", 
+    A.PAYPERIOD
+FROM 
+    BPPHPAYROLL A 
+WHERE 
+    A.EMPID = :IDCARD 
+    AND A.PCTYPE = 'ACTUAL'
+    AND A.PAYPERIOD LIKE '%${payperiod?.split(" ")[1]}'
+GROUP BY 
+    A.PAYPERIOD`
+
+   
+        const result = await connection.execute(sql,whereparams)
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getUserMobData(req,res) { 
+    const UserName=req.query.username
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `SELECT * FROM MOBUSERVIEW B
+WHERE UPPER(B.MUSER) = UPPER(:USERNAME)`
+
+   
+        const result = await connection.execute(sql,{USERNAME:UserName})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+        
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+
+
+export async function ToTexpenses(req,res) { 
+
+    console.log(req);
+    
+    const year=req.query.payperiod
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `select SUM(NETPAY) salary
+       from BPPHPAYROLL a   where a.PAYPERIOD=:payperiod and a.PCTYPE = 'ACTUAL' group by a.PAYPERIOD`
+            console.log(sql,year);
+            
+        const result = await connection.execute(sql,{payperiod:year})
+        
+          return res.json({ statusCode: 0, data: result?.rows })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getLastMonthSalary(req, res) {
+    const Idcard=req.query.Idcard
+  
+    const options = {
+        year: 'numeric',    // Day of the month (e.g., 3)
+        month: 'long'      // Full month name (e.g., September)
+      };
+     
+       const currentDate = new Date();
+     currentDate?.setDate(1)
+      currentDate.setMonth(currentDate.getMonth() - 1); // Subtract 1 month
+      
+      // Format the date using toLocaleDateString
+      const formattedDate = currentDate.toLocaleDateString('en-GB', options);
+   
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            ` SELECT SUM(A.NETPAY) SALARY,SUM(A.EGROSS) GROSS,A.PAYPERIOD,Sum(A.EBASIC),A.SALTYPE,sum(A.WDAYS),sum(A.OT),sum(A.OTWAGES),sum(A.ADV),sum(A.TOTDED),sum(A.LOAN),sum(A.PERWAGES)
+ FROM BPPHPAYROLL A WHERE A.EMPID=:IdCard AND A.PAYPERIOD=:payperiod
+ AND A.PCTYPE = 'ACTUAL'  group by A.PAYPERIOD,A.SALTYPE`
+        const result = await connection.execute(sql,{payperiod:formattedDate,IdCard:Idcard})
+       
+        
+        return res.json({ statusCode: 0, data:{salary: result?.rows[0][0],gross:result?.rows[0][1],payperiod:result?.rows[0][2],basic:result?.rows[0][3],saltype:result?.rows[0][4],wd:result?.rows[0][5],ot:result?.rows[0][6],otamt:result?.rows[0][7],adv:result?.rows[0][8],deb:result?.rows[0][9],loan:result?.rows[0][10],pwage:result?.rows[0][11]} })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+export async function getCurrentMonthLeaves(req, res) {
+    const Idcard=req.query.Idcard
+    const options = {
+        year: 'numeric',    // Day of the month (e.g., 3)
+        month: 'long'      // Full month name (e.g., September)
+      };
+
+     
+     
+       const currentDate = new Date();
+     currentDate?.setDate(1)
+      currentDate.setMonth(currentDate.getMonth()); // Subtract 1 month
+      
+      // Format the date using toLocaleDateString
+      const formattedDate = currentDate.toLocaleDateString('en-GB', options);
+    const connection = await getConnection(res)
+
+    console.log(Idcard);
+    
+      try {
+        const sql =
+            `select Sum(a.Leave) Leave
+           from BPPHPAYROLL a where a.PAYPERIOD=:payperiod and a.EMPID=:IdCard group by a.PAYPERIOD`
+        const result = await connection.execute(sql,{payperiod:formattedDate,IdCard:Idcard})
+      
+        console.log(`select Sum(a.Leave) Leave
+           from BPPHPAYROLL a where a.PAYPERIOD='${formattedDate}' and a.EMPID=${Idcard} group by a.PAYPERIOD`);
+        
+        return res.json({ statusCode: 0, data:{Leave:result?.rows[0]?.length>0 ? result?.rows[0][0]+"Days" : "Not Yet Updated"} })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
+
+export async function getYearWiseToTSalary(req, res) {
+   
+    const connection = await getConnection(res)
+    try {
+     
+        const sql =
+            `SELECT 
+    FINYEAR AS YEAR,  
+    SUM(NETPAY) AS salary 
+FROM 
+    BPPHPAYROLL  
+WHERE 
+    ID > 0  
+GROUP BY 
+          FINYEAR
+ORDER BY 
+     FINYEAR`
+       
+
+        const result = await connection.execute(sql)
+       
+        
+        return res.json({ statusCode: 0, data: result })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
 
 
 export async function getActualVsBudget(req, res) {
@@ -542,4 +1085,8 @@ ORDER BY A.DOJ desc
         await connection.close()
     }
 }
+
+
+
+
 

@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import HomeCards from './Punch';
+import CustomText from './Text/CustomText';
 
 const CustomCard = ({ title, onPress, openModel, closeModel, navigation }) => (
     <View style={styles.cardSection}>
         <TouchableOpacity style={styles.card} onPress={onPress}>
-            <Text style={styles.cardTitle}>{title}</Text>
+            <CustomText style={styles.cardTitle}>{title}</CustomText>
             <Image
                 source={require('./img/arrow-down-sign-to-navigate.png')}
                 style={styles.cardImage}
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: 'center',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f5f5f7',
         borderRadius: 8,
         padding: 15,
         shadowColor: '#000',
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: 500,
         color: '#333',
     },
 

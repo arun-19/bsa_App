@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt"
 import { getConnection } from "../constants/db.connection.js";
+import OracleDB from "oracledb";
+
 
 
 
@@ -8,21 +10,24 @@ export async function login(req, res) {
     const { username, password } = req.body
     if (!username) return res.json({ statusCode: 1, message: "Username is Required" })
     if (!password) return res.json({ statusCode: 1, message: "Password is Required" });
-    console.log(username, "username");
-    console.log(password);
 
-    const sql = `SELECT * FROM MOBILEUSER where username='${username}'`
-    console.log(sql, 'sql');
+    const sql = ` SELECT * FROM MOBUSERVIEW B
+WHERE UPPER(B.MUSER) = UPPER('${username}')`
 
-    const result = await connection.execute(sql)
+
+   
+
+    const result = await connection?.execute(sql)
+   
+
 
     if (result.rows.length === 0) return res.json({ statusCode: 1, message: "Username Doesn't Exist" })
-    let storedPassword = result.rows[0][1]
+    let storedPassword = result.rows[0][17]
 
     const isMatched = await bcrypt.compare(password, storedPassword)
 
 
-    if (!isMatched) return res.json({ statusCode: 1, message: "Password Doesn't Match" })
+    if (!isMatched) return res.json({ statusCode: 1, message: "Password Doesn't Match",Id:result.rows[0][4] })
     console.log(isMatched, 'isMatched');
     // let gtCompMastId = result.rows[0][2]
     // let supplyDetails = await connection.execute(`
@@ -33,8 +38,30 @@ export async function login(req, res) {
     // `, { gtCompMastId })
     // supplyDetails = supplyDetails.rows.map(item => item[0])
 
+    const sql2 = `select distinct a.compcode as "label",a.compcode as "value"  from gtcompmast a,gtempcompdet b,gtempmast c
+where a.gtcompmastid=b.empcomp and b.gtempmastid=c.gtempmastid
+and lower(c.eusers) = lower(:username)
+and ptransaction='COMPANY'
+order by 1`
+   
+
+    const result2 = await connection?.execute(sql2,{username})
+
+   
+
+    const transformedResult = result2?.rows?.map(row => {
+        const keyValuePair = {};
+        // Assuming the first row contains the column names
+        result2.metaData.forEach((col, index) => {
+          keyValuePair[col.name] = row[index];
+        });
+        return keyValuePair;
+       });
+  
+
+    
     await connection.close()
-    return res.json({ statusCode: 0, message: "Login Successfull" })
+    return res.json({ statusCode: 0, message: "Login Successfull" ,Id:result.rows[0][1],Global:transformedResult})
 
 }
 
@@ -108,6 +135,35 @@ export async function get(req, res) {
     }
 }
 
+
+
+export async function getUserDetails(req, res) {
+     const Idcard=req.query.Idcard
+    const connection = await getConnection(res)
+    try {
+        const sql = `  
+SELECT D.MNNAME1 DeptName,A.FNAME,A.IDCARDNO EMPID,c.DESIGNATION,E.MOBNO
+FROM HREMPLOYMAST A JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID=B.HREMPLOYMASTID
+JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID=B.DESIGNATION
+JOIN GTDEPTDESGMAST D ON D.GTDEPTDESGMASTID=B.DEPTNAME
+left join  HRECONTACTDETAILS E on E.HREMPLOYMASTID=A.HREMPLOYMASTID
+WHERE A.IDCARDNO=:IDCARDNO`
+        const result = await connection.execute(sql,{IDCARDNO:Idcard})
+       const resp = result?.rows[0]
+        return res.json({ statusCode: 0, data: resp ? {
+            Department:resp[0],Name:resp[1],EmpId:resp[2],Designation:resp[3],
+            Mobile:resp[4]
+          } : {} })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
 export async function getOne(req, res) {
 
     const connection = await getConnection(res)
@@ -157,6 +213,91 @@ WHERE D.BANDNAME='STAFF' AND B.IDACTIVE='YES'`
         await connection.close()
     }
 }
+
+export async function getUserImage(req, res) {
+    const USERNAME = req.params?.USERNAME;
+  
+    let connection;
+    try {
+      // Step 1: Get a connection to the Oracle DB
+      connection = await getConnection(res);
+  
+      
+      const sql = `SELECT IMAGE FROM MOBILEUSER WHERE lower(USERNAME) = :USERNAME`;
+      const binds = { USERNAME };
+  
+    
+      const result = await connection.execute(sql, binds, { outFormat: OracleDB.OUT_FORMAT_OBJECT });
+  
+    
+      const imageBlob = result?.rows[0]?.IMAGE;
+  
+      if (!imageBlob) {
+     
+        return res.status(404).send('Image not found');
+      }
+
+      imageBlob?.getData((err, data) => {
+        if (err) {
+          console.error('Error fetching image data:', err);
+          return res.status(500).json({ error: 'Failed to fetch image data' });
+        }
+  
+        res.setHeader('Content-Type', 'image/jpeg'); 
+        res.send(data);  
+  
+      });
+  
+     
+    
+      
+ 
+  
+  
+    } catch (err) {
+      console.error('Error fetching image:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+      if (connection) {
+        await connection.close();
+      }
+    }
+  }
+
+export async function UploadImage(req, res) {
+    try {
+        
+      // Step 1: Extract Base64 string from the request
+      const { USERNAME} = req.body;
+    
+      if (!req.file) {
+        return res.status(400).send('No image data provided');
+      }
+  
+  
+      
+  
+      // Step 4: Connect to Oracle and insert the image
+        const connection = await getConnection(res)
+
+      const sql = `Update MOBILEUSER set IMAGE=:imageData where USERNAME='${USERNAME}'`;
+      const binds = {
+        imageData:req?.file?.buffer
+      };
+  
+      const result = await connection.execute(sql, binds, { autoCommit: true });
+      
+      res.status(200).send({ message: 'Image uploaded successfully!', result });
+      
+      // Step 5: Close the connection
+      await connection.close();
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: 'Failed to upload image', error: err.message });
+    }
+
+}
+  
 
 
 export async function getDesignation(req, res) {
@@ -214,7 +355,6 @@ where  MU.USERNAME  ='${userName}' AND isDefault <> 0`
 export async function createRoleOnPage(req, res) {
     const connection = await getConnection();
     const { roleName, permissions } = req.body;
-    console.log(req.body, 'req.body');  // Check the incoming data
 
     const createdDate = new Date();
 
@@ -236,8 +376,6 @@ export async function createRoleOnPage(req, res) {
             const sql = `INSERT INTO mobuserlog ("ROLE", "CREATE", "EDIT", "DELETE", "READ", "PAGE", "ISDEFAULT")
                          VALUES ('${roleName}', ${create}, ${edit}, ${del}, ${read}, '${page}', ${isdefault})`;
 
-            console.log(sql, 'sql');
-
             insertPromises.push(connection.execute(sql));
         }
 
@@ -247,6 +385,45 @@ export async function createRoleOnPage(req, res) {
         await connection.close(); // Close connection
 
         return res.json({ statusCode: 0, message: 'User created successfully' });
+
+    } catch (error) {
+        console.error(error);
+        await connection.close();
+        return res.json({ statusCode: 1, message: 'An error occurred while creating the user' });
+    }
+}
+
+
+export async function UpdateRoleOnPage(req, res) {
+    const connection = await getConnection();
+    const { roleName, permissions } = req.body;
+
+    try {
+        // Prepare to insert each page's permissions
+        const insertPromises = [];
+
+        for (const page in permissions) {
+            const pagePermissions = permissions[page];
+
+            // Prepare the SQL values for each permission type
+            const read = pagePermissions.Read ? 1 : 0;
+            const create = pagePermissions.Create ? 1 : 0;
+            const edit = pagePermissions.Update ? 1 : 0;
+            const del = pagePermissions.Delete ? 1 : 0;
+            const isdefault = pagePermissions.Admin ? 1 : 0;
+            // Construct the SQL query for each page's permissions
+            const sql = `
+            update  MOBUSERLOG set "CREATE"=${create},"EDIT"=${edit},"DELETE"=${del},"READ"=${read},ISDEFAULT=${isdefault} where PAGE='${page}' and ROLE='${roleName}'`; 
+
+            insertPromises.push(connection.execute(sql));
+        }
+
+        // Execute all insert statements
+        await Promise?.all(insertPromises);
+        await connection?.commit(); // Commit after all queries are executed
+        await connection?.close(); // Close connection
+
+        return res.json({ statusCode: 0, message: 'User Update successfully' });
 
     } catch (error) {
         console.error(error);

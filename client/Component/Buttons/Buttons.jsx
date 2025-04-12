@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const FloatingButton = ({ save }) => {
+const FloatingButton = ({ save,edit,editable,New,Update,type}) => {
     const [showOptions, setShowOptions] = useState(false);
 
     // Actions menu for the floating button
@@ -9,23 +9,10 @@ const FloatingButton = ({ save }) => {
         {
             text: "New",
             name: "bt_add",  // You can use an icon or a unique name for the "New" action
-            onPress: () => console.log("New action clicked"),  // This can be a handler for the "New" action
+            onPress: New,  // This can be a handler for the "New" action
         },
-        {
-            text: "Save",
-            name: "bt_save",
-            onPress: save,  // Trigger the save function passed as a prop
-        },
-        {
-            text: "Edit",
-            name: "bt_edit",
-            onPress: () => console.log("Edit action clicked"),  // Add your Edit functionality here
-        },
-        {
-            text: "Delete",
-            name: "bt_delete",
-            onPress: () => console.log("Delete action clicked"),  // Add your Delete functionality here
-        },
+       
+        
     ];
 
     // Toggle the options list visibility
@@ -43,11 +30,29 @@ const FloatingButton = ({ save }) => {
             {/* Options List */}
             {showOptions && (
                 <View style={styles.socialList}>
-                    {actions.map((action) => (
+                    {[...actions,editable &&  {
+            text: "Update",
+            name: "Update",
+            onPress:  Update,  // Add your Edit functionality here
+        },
+        !editable &&
+        {
+            text: "Edit",
+            name: "bt_edit",
+            onPress:  edit,  // Add your Edit functionality here
+        } ,
+        editable==false || type=="user" &&
+        {
+            text: "Save",
+            name: "bt_save",
+            onPress: save,  // Trigger the save function passed as a prop
+        }].map((action) => (
+            action &&
                         <TouchableOpacity
                             key={action.name}
                             style={styles.socialItem}
                             onPress={action.onPress}  // Trigger the corresponding action
+                            onPressOut={()=>setShowOptions(false)}
                         >
                             <Text>{action.text}</Text>
                         </TouchableOpacity>
@@ -80,13 +85,14 @@ const styles = StyleSheet.create({
     socialList: {
         position: 'absolute',
         bottom: 60,
-        left: -80,
+        left: -100,
         borderRadius: 10,
         width: 200,
         padding: 10,
-        zIndex: 10,
+        zIndex:30,
         alignItems: 'center',
         flexDirection: 'column',
+        backgroundColor:"#e8eaeb"
     },
     socialItem: {
         marginBottom: 10,

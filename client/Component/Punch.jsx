@@ -42,13 +42,13 @@ const HomeCards = ({ openModel, closeModel, navigation }) => {
     const cardLabels = [
         { label: 'Insurance Details', action: 'INSURANCEREPORT', image: require('./img/insurance.png'), notify: countUnder20DueDays },
         { label: 'Attendance Report', action: 'ATTENDANCEREPORT', image: require('./img/exit.png') },
-        // { label: 'Absence Register', action: 'ABSENCEREGISTER', image: require('./img/attendance.png') },
-        // { label: 'Available Leave', action: 'punch', image: require('./img/convenience.png') },
-        // { label: 'Leave register', action: 'punch', image: require('./img/schedule.png') },
-        // { label: 'On Duty', action: 'punch', image: require('./img/duty.png') },
-        // { label: 'Duty Register', action: 'punch', image: require('./img/attendance (1).png') },
-        // { label: 'Advance register', action: 'punch', image: require('./img/payment.png') },
-        // { label: 'Pay Slip', action: 'punch', image: require('./img/salary-voucher.png') },
+         { label: 'Absence Register', action: 'ABSENCEREGISTER', image: require('./img/attendance.png') },
+         { label: 'Available Leave', action: 'punch', image: require('./img/convenience.png') },
+         { label: 'Leave register', action: 'punch', image: require('./img/schedule.png') },
+         { label: 'On Duty', action: 'punch', image: require('./img/duty.png') },
+         { label: 'Duty Register', action: 'punch', image: require('./img/attendance (1).png') },
+         { label: 'Advance register', action: 'punch', image: require('./img/payment.png') },
+         { label: 'Pay Slip', action: 'punch', image: require('./img/salary-voucher.png') },
     ];
 
     const handleClick = (label, action) => {

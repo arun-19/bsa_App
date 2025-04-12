@@ -3,9 +3,13 @@ import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useCustomFonts } from '../Component/CustomHooks/useFonts';
+
 const LogoutButton = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState(null);
+    const {fontsLoaded}=useCustomFonts()
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -24,8 +28,8 @@ const LogoutButton = () => {
     console.log(username, "user"); // Now username will display correctly
 
     return (
-        <TouchableOpacity onPress={handleLogout} style={{ padding: 10, backgroundColor: 'red' }}>
-            <Text style={{ color: 'white' }}>Logout</Text>
+        <TouchableOpacity onPress={handleLogout} style={{ paddingTop: 7,paddingBottom:8,paddingRight:10,paddingLeft:10, borderWidth:.5 ,borderColor:"white",backgroundColor:"#f76880",borderRadius:30}}>
+          <Text style={{ color: "white",fontFamily:"Dosis-Regular",fontWeight:"semibold" }}>Logout <MaterialCommunityIcons name="logout-variant" size={15} color="white" /></Text>
         </TouchableOpacity>
     );
 };

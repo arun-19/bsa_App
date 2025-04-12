@@ -4,6 +4,7 @@ import dueDaysReducer from './Slices/dueDaysSlice'
 import tableData from "./Slices/insuranceDataSlice"
 import { poRegister, commonMast, supplier, poData, misDashboardService, ordManagement, UsersApi } from './service'
 import { setupListeners } from '@reduxjs/toolkit/query'
+import UserDetails from "./Slices/UserDetails"
 
 export const store = configureStore({
     reducer: {
@@ -16,7 +17,8 @@ export const store = configureStore({
         [ordManagement.reducerPath]: ordManagement.reducer,
         [UsersApi.reducerPath]: UsersApi.reducer,
         dueDays: dueDaysReducer,
-        tableData: tableData
+        tableData: tableData,
+        UserDetails:UserDetails
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat([

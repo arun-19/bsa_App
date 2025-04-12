@@ -4,7 +4,7 @@
     "slug": "sample",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/Untitled design (1).png",
+    "icon": "./assets/Untitleddesign.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -46,7 +46,9 @@
         {
           "initialOrientation": "DEFAULT"
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "owner": "pinnacle_systems"
   }
 }

@@ -93,6 +93,7 @@ const Form = ({ closeModal, onClose, userDet }) => {
                             label={<Text>Select Employee</Text>}
                             setSelected={setSelectedEmply}
                             options={userDet}
+                            zIndex={300}
                         />
                         {/* <TextInput
                             value={role}
@@ -106,6 +107,21 @@ const Form = ({ closeModal, onClose, userDet }) => {
                             label={<Text>Select Role:</Text>}
                             setSelected={setSelectedRole}
                             options={role}
+                            style={styles.dropdown}
+                        />
+
+                           <Dropdown
+                            selected={selectedRole}
+                            label={<Text>Select Type :</Text>}
+                            setSelected={setSelectedRole}
+                            options={
+                                {data:[{
+                                id:"TOP",value:"Top Management",  
+                            },{
+                                 id:"HR",value:"HR Department"
+                            },{
+                                id:"EMPLOYEE",value:"EMPLOYEE"
+                            }]}}
                             style={styles.dropdown}
                         />
                     </View>
@@ -137,7 +153,7 @@ const Form = ({ closeModal, onClose, userDet }) => {
                     value={email}
                     onChangeText={setEmail}
                     style={styles.input}
-                    secureTextEntry
+                    
                     placeholder="Enter email"
                 />
             </View>
@@ -196,7 +212,7 @@ const Form = ({ closeModal, onClose, userDet }) => {
                 </TouchableOpacity>
                 {isError && <Text style={styles.errorMessage}>{error.message}</Text>}
             </View> */}
-            <FloatingButton save={handleSubmit} />
+            <FloatingButton type="user" save={handleSubmit} />
 
         </ScrollView>
     );
@@ -222,8 +238,8 @@ const styles = StyleSheet.create({
         color: "#555",
     },
     input: {
-        height: 35,
-        width: "80%",
+        height: "auto",
+        width: "100%",
         borderColor: "#ccc",
         borderWidth: 1,
         borderRadius: 5,
@@ -310,7 +326,7 @@ const styles = StyleSheet.create({
     },
     dropdownCon: {
         flex: 1,
-        flexDirection: "row"
+        flexDirection: "column"
     }
 });
 

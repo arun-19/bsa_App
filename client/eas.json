@@ -9,10 +9,13 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal", "android": {
+        "buildType": "apk"
+      }
+      
     },
     "production": {
-      //used  to download as .apk
+  
       "android": {
         "buildType": "apk"
       }

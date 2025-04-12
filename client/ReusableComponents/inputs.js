@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import DatePicker from 'react-native-ui-datepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment';
+import CustomText from '../Component/Text/CustomText';
 
-export const Dropdown = ({ selected, setSelected, options, label }) => {
+export const Dropdown = ({ selected, setSelected, options, label,placeholder,...props }) => {
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState(
         (options?.data || []).map((item) => ({
@@ -16,7 +16,7 @@ export const Dropdown = ({ selected, setSelected, options, label }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>{label}</Text>
+            <CustomText style={styles.label}>{label}</CustomText>
 
             <DropDownPicker
                 open={open}
@@ -26,9 +26,11 @@ export const Dropdown = ({ selected, setSelected, options, label }) => {
                 setValue={setSelected}
                 setItems={setItems}
                 searchable={true}
+
                 searchPlaceholder="Search options..."
-                placeholder="Select user Id"
+                placeholder={placeholder}
                 dropDownDirection="AUTO"
+                {...props}
                 style={styles.dropdown}
                 searchablePlaceholder="Search..."
                 searchTextInputStyle={styles.searchTextInputStyle}
@@ -81,9 +83,9 @@ export const DateInput = ({ date, setDate }) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: 150,
+       
         paddingRight: 2,
-        flexDirection: 'row'
+        flexDirection: 'column'
     },
     dateInputContainer: {
         width: 75,
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
         width: '100%', // Makes dropdown width 100% of the container's width
         minHeight: 40,
         marginBottom: 12,
+        zIndex:10,
     },
 
     dropDownContainerStyle: {

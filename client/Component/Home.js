@@ -2,21 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import NavBar from './Navbar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 import CustomCard from './CustomCard';
+import { useCustomFonts } from './CustomHooks/useFonts';
+import CustomText from './Text/CustomText';
+import { useSelector } from 'react-redux';
 
 export default function Home({ navigation }) {
     const [username, setUsername] = useState(null);
-
+    const ConstomFont=useCustomFonts()
     // State to control modals for each card
-    const [vehicleOpen, setVehicleOpen] = useState(false);
+    const [vehicleOpen, setVehicleOpen] = useState(true);
     const [payrollOpen, setPayrollOpen] = useState(false);
     const [reportOpen, setReportOpen] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
             const storedUser = await AsyncStorage.getItem('userName');
-            setUsername(storedUser); // Set the username in state
+            let userName=JSON.parse(storedUser)
+            setUsername(userName?.userName); // Set the username in state
         };
         fetchUser();
     }, []);
@@ -33,12 +36,12 @@ export default function Home({ navigation }) {
     };
 
     return (
+        <><NavBar />
         <View style={styles.mainContainer}>
-            <NavBar />
-
+     
             {/* User Greeting */}
             <View style={styles.labelContainer}>
-                <Text style={styles.label}>Welcome: <Text style={styles.user}>{username}</Text></Text>
+                <CustomText style={styles.label}>Welcome: <Text style={styles.user}>{username}</Text></CustomText>
             </View>
 
             {/* Card Sections */}
@@ -70,6 +73,7 @@ export default function Home({ navigation }) {
                 /> */}
             </View>
         </View>
+        </>
     );
 }
 
@@ -86,9 +90,10 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     label: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 23,
+        fontFamily:"Dosis-Bold",
+        color: '#1b1c1c',
+        fontWeight:"ultralight"
     },
     user: {
         fontSize: 26,
