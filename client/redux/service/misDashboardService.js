@@ -302,6 +302,28 @@ const MisDashboard = createApi({
             }
         },
         providesTags: ['getUserMobData'],
+    }),getInOut:builder.query({
+        query: ({params}) => {
+            return {
+                url: MIS_DASHBOARD + "/getInOut",
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },params
+            }
+        },
+        providesTags: ['getINOUT'],
+    }),getgendercount:builder.query({
+        query: ({params}) => {
+            return {
+                url: MIS_DASHBOARD + "/getgendercount",
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },params
+            }
+        },
+        providesTags: ['getgendercount'],
     })
 
 })
@@ -329,7 +351,9 @@ export const {
     useGetESIQuery,
     useGetOverTimeWagesQuery,
     useGetEachOverTimeWagesQuery,
-    useGetUserMobDataQuery
+    useGetUserMobDataQuery,
+    useGetInOutQuery,
+    useGetgendercountQuery
 
 } = MisDashboard;
 

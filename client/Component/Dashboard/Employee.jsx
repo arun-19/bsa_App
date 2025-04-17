@@ -75,149 +75,153 @@ export default function Employee({navigation}) {
   }, [animatedValue]);
 
   const ChartStyle = StyleSheet.create({
-    ChartView: {
-      marginBottom: 1,
-      backgroundColor: '#fff',
-      borderRadius: 16,
-      padding: 10,
-      width: (screenWidth - 40) ,
-      shadowColor: "#bec1c4",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 50,
-      justifyContent: "center",
-      fontFamily: "Dosis-Regular"
-    },
     ChartContainer: {
-      display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
       justifyContent: "center",
-      alignItems:"center",
-      gap: 10,
-      paddingBottom: 10,
- 
-      
-      
+      alignItems: "center",
+      paddingHorizontal: 10,
+      gap: 7,
+      paddingBottom: 16,
     },
+  
+    ChartView: {
+      marginBottom: 5,
+      backgroundColor: '#fff',
+      borderRadius: 16,
+      padding: 14,
+      width: screenWidth - 40,
+      shadowColor: "#bec1c4",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 6,
+      justifyContent: "center",
+    },
+  
     HeaderCustomText: {
       fontSize: 20,
       fontWeight: 'bold',
-      margin: .5,
       color: '#333',
-    },MetricCard_end:{
+      marginBottom: 6,
+    },
+  
+    metricCard: {
+      backgroundColor: '#ffffff',
+      borderRadius: 16,
+      padding: 16,
+      marginVertical: 8,
+      borderLeftWidth: 6,
+      borderLeftColor: '#5f27cd', // dynamic based on context
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    MetricCard_end: {
       backgroundColor: '#fcfafa',
       borderRadius: 12,
-      padding: 13,
-      marginBottom: 5,
-      width: "100%",
-      height:120,
+      padding: 16,
+      marginBottom: 10,
+      width: '100%',
+      height: 120,
+      elevation: 4,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 4,
-      rowGap: 1,
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
       justifyContent: "center",
       alignItems: 'center',
-      paddingBottom:15,marginTop:9
     },
-    MetricCard: {
-      backgroundColor: '#fcfafa',
-      borderRadius: 7,
-      padding: 15,
-      marginBottom: 5,
-      width: (screenWidth - 40) / 2,
-      shadowColor: "#bec1c4",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 50,
-      rowGap: 1,
-      justifyContent: 'center',
-      alignItems: 'center',paddingBottom:35,
-      height:"100%",
-      
-    },
+  
     MetricTitle: {
       fontSize: 14,
-      fontFamily:"Dosis-Bold",
-      fontWeight:"900",
+      fontWeight: '700',
+      fontFamily: "Dosis-Bold",
       color: '#6d6d70',
-      marginBottom: 7,
-    }, MetricTitle_card: {
-      fontSize: 14.5,
-      fontFamily:"Dosis-Bold",
-      fontWeight:"900",
-      color: 'black',
-      marginBottom: 10,
-      textAlign:"center",
-      padding:4
+      marginBottom: 6,
     },
+  
+    MetricTitle_card: {
+      fontSize: 15,
+      fontWeight: '800',
+      fontFamily: "Dosis-Bold",
+      color: '#1f1f1f',
+      marginBottom: 12,
+      textAlign: "left",
+    },
+  
     MetricValue: {
-      fontSize: 20,
+      fontSize: 18,
       color: '#1B81DB',
-      fontWeight:"bold"
+      fontWeight: 'bold',
     },
+  
     Button: {
-      marginTop: 15,
-      paddingVertical: 10,
+      marginTop: 10,
+      paddingVertical: 8,
       paddingHorizontal: 20,
       backgroundColor: '#747f91',
       borderRadius: 25,
+      textAlign: 'center',
       color: '#fff',
       fontWeight: 'bold',
-      textAlign: 'center',
     },
-    TopBox:{
-        backgroundColor:"#69b6f5"
-    },
-  fab: {
-    position: 'absolute',
-    bottom:"40%",
-    right: -30,
-    width: 65,
-    height: 100,
-    borderRadius: 30,
-    backgroundColor: "rgba(255, 255, 255, 0.86)",
-    justifyContent: 'center',
-    alignItems: "flex-start",
-    elevation: 50, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3.5,
-    zIndex:500,
-    borderWidth:.4,
-    borderColor:"#c5c7c9"
-  },MiniCard:{
-    backgroundColor: '#fcfafa',
-    borderRadius: 10,
-    marginBottom: 5,
-    width:100,
-    shadowColor: "#bec1c4",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 50,
-    rowGap: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom:20,
-
-
-  },MiniCard_Title:{
-    
-    margin:7,
-    padding:1,
-    color:"white",
   
-  },MiniCard_Value:{
-    color:"white"
-  }
+    TopBox: {
+      backgroundColor: "#69b6f5",
+    },
+  
+    fab: {
+      position: 'absolute',
+      bottom: "40%",
+      right: -30,
+      width: 65,
+      height: 100,
+      borderRadius: 30,
+      backgroundColor: "rgba(255, 255, 255, 0.86)",
+      justifyContent: 'center',
+      alignItems: "flex-start",
+      elevation: 6,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      zIndex: 500,
+      borderWidth: 0.6,
+      borderColor: "#c5c7c9",
+    },
+  
+    MiniCard: {
+      backgroundColor: '#15b35a', // Default, override with inline bgColor
+      borderRadius: 10,
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      width: 100,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 5,
+      shadowColor: "#bec1c4",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 4,
+    },
+  
+    MiniCard_Title: {
+      fontSize: 13,
+      color: "white",
+      fontWeight: "600",
+      marginBottom: 4,
+    },
+  
+    MiniCard_Value: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "700",
+    },
   });
-
+  
  
 
 const {data:LastMonthSalary}=useGetLastMonthSalaryQuery({Idcard:UserId?.UserId})
@@ -252,10 +256,10 @@ refetch()
 },[Year])
  
  return (<>
-  <NavBar />
+
   <CameraModal visible={isCameraModal} USER={UserId} setVisible={setisCameraModel} onPictureTaken={setprofilepicture}></CameraModal>
 
-    <View style={{ flex: 1, padding: 15, backgroundColor: '#E5E7E7', width: "100%"}}>
+    <View style={{ flex: 1, padding: 8, backgroundColor: '#f5f5f5', width: "100%"}}>
 
      
    {/*   <TouchableOpacity style={ChartStyle.fab}  onPress={()=>{navigation.navigate("HOME")}}>
@@ -294,31 +298,78 @@ refetch()
               }}>
           <UserProfileCard USER={UserId} picture={profilepicture} openCamera={setisCameraModel} ></UserProfileCard>
         {/* Metrics Section */}
-        <View  style={{ flexDirection: 'row', flexWrap: 'wrap',height:"12%", justifyContent: 'space-between',marginTop:0,marginBottom:10}}>
-        
-          <View style={[ChartStyle.MetricCard,{borderLeftWidth:4,borderLeftColor:"#15b35a"}]}>
-         
-           <TouchableOpacity style={{flexDirection:"row"}} onPress={()=>SET_OPEN_MORE_SALARY(true)}> <CustomText style={ChartStyle.MetricTitle_card}  >Last Month Salary  </CustomText> <Foundation  style={{marginTop:"3%"}} name="indent-more" size={19} color="gray" /></TouchableOpacity>
-            
-         
-            <CustomText style={[ChartStyle.MetricValue,{fontSize:14,color:"#038024"}]}>GROSS: {LastMonthgrossSalaryAmount}</CustomText>
-            <View style={{paddingTop:2,borderBottomWidth:.6,width:"90%",borderColor:"#b2b8b4"}}></View>
-            <CustomText style={[ChartStyle.MetricValue,{fontSize:17}]}>NET: {LastMonthSalaryAmount}</CustomText>
-           {selectMonthSalary?.format &&  <CustomText style={[ChartStyle.MetricValue,{fontSize:14}]}> {String(selectMonthSalary?.format)}</CustomText>}
-           {/* <TouchableOpacity style={ChartStyle.Button}>
-              <CustomText style={{ color: '#fff' }}>View Details</CustomText>
-            </TouchableOpacity>*/}
-          </View>
-          <View style={[ChartStyle.MetricCard,{backgroundColor:"#e9f4f5",borderLeftWidth:4,borderLeftColor:"#2ac6d1"}]}>
-            <CustomText style={ChartStyle.MetricTitle_card}>Total Absent </CustomText>
-            <CustomText style={[ChartStyle.MetricValue,{color:typeof(CurrentMonthLeaves?.data?.Leave=="String") && "#c7342a",fontSize:typeof(CurrentMonthLeaves?.data?.Leave=="String") && 13}]}> {typeof(CurrentMonthLeaves?.data?.Leave)=="number" ?  CurrentMonthLeaves?.data?.Leave+"Days" : CurrentMonthLeaves?.data?.Leave}</CustomText>
-           {/* <TouchableOpacity style={ChartStyle.Button}>
-              <CustomText style={{ color: '#fff' }}>View Details</CustomText>
-            </TouchableOpacity>*/}
-          </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10, marginVertical: 12 }}>
+  
+  {/* Last Month Salary Card */}
+  <TouchableOpacity
+    onPress={() => SET_OPEN_MORE_SALARY(true)}
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      backgroundColor: '#ffffff',
+      borderRadius: 12,
+      padding: 16,
+      elevation: 6,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      borderLeftWidth: 5,
+      borderLeftColor: '#15b35a'
+    }}
+  >
+    <View style={{ flexDirection: 'column' }}>
+      <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#2d3436', marginBottom: 6 }}>
+        <FontAwesome5 name="wallet" size={16} color="#15b35a" /> Last Month Salary
+      </Text>
+      <Text style={{ color: '#038024', fontSize: 14, fontWeight: '600' }}>GROSS: {LastMonthgrossSalaryAmount}</Text>
+      <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#000' }}>NET: {LastMonthSalaryAmount}</Text>
+      {selectMonthSalary?.format && (
+        <Text style={{ fontSize: 12, color: '#6c757d' }}>{String(selectMonthSalary?.format)}</Text>
+      )}
+    </View>
+    
+  </TouchableOpacity>
 
-      
-        </View>
+  {/* Absent Card */}
+  <View
+    style={{
+      width: '100%',
+      backgroundColor: '#e6faff',
+      borderRadius: 12,
+      padding: 16,
+      elevation: 6,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      borderLeftWidth: 5,
+      borderLeftColor: '#2ac6d1',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    }}
+  >
+    <View>
+      <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#11899b', marginBottom: 6 }}>
+        <MaterialCommunityIcons name="calendar-remove" size={18} color="#2ac6d1" /> Total Absent
+      </Text>
+      <Text
+        style={{
+          fontSize: typeof CurrentMonthLeaves?.data?.Leave === 'string' ? 13 : 16,
+          color: typeof CurrentMonthLeaves?.data?.Leave === 'string' ? '#c7342a' : '#000',
+          fontWeight: 'bold',
+        }}
+      >
+        {typeof CurrentMonthLeaves?.data?.Leave === 'number'
+          ? CurrentMonthLeaves?.data?.Leave + ' Days'
+          : CurrentMonthLeaves?.data?.Leave}
+      </Text>
+    </View>
+  </View>
+</View>
 
       
 
@@ -327,149 +378,79 @@ refetch()
         {/* Charts Section */}
         <View style={ChartStyle.ChartContainer}>
 
-
-        <Animated.View
-            style={{
-              opacity: animatedValue,
-            }}
-          >
-            <View style={[ChartStyle.ChartView, { justifyContent: "center"}]}>
-            <View  style={ChartStyle.MetricTitle}>
-            <Text style={[ChartStyle.MetricTitle,{marginLeft:1,fontWeight:"400"}]}> <TouchableOpacity onPress={()=>issetOpenYMEPO(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}>ESI & PF & OT On {esipfdataOnMonth?.PAYPERIOD}<MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity> </Text>
-            </View>
-           
-
-              <View style={{flexDirection:"row",justifyContent:"center",gap:"2.4%",padding:0,paddingTop:".5%"}}>
-                        
-                     <View onTouchEnd={()=>issetIndividualEsiModel(true)} style={[ChartStyle?.MiniCard,{backgroundColor:"#15b35a"}]}>
-                      <CustomText style={ChartStyle?.MiniCard_Title}>ESI</CustomText>
-                      <CustomText style={ChartStyle?.MiniCard_Value}>{NumbertoCurrency(esipfdataOnMonth?.esi  || 0)}</CustomText>
-                     
-                     </View>
-
-                     <View onTouchEnd={()=>issetIndividualPFModel(true)} style={[ChartStyle?.MiniCard,{backgroundColor:"#2ac6d1"}]}>
-                      <CustomText style={ChartStyle?.MiniCard_Title}>PF</CustomText>
-                      <CustomText style={ChartStyle?.MiniCard_Value}>{NumbertoCurrency(esipfdataOnMonth?.pf || 0)}</CustomText>
-                     </View>
-
-                     <View onTouchEnd={()=>issetIndividualOTModel(true)} style={[ChartStyle?.MiniCard,{backgroundColor:"#a159d9"}]}>
-                      <CustomText style={ChartStyle?.MiniCard_Title}>Over Time</CustomText>
-                      <CustomText style={ChartStyle?.MiniCard_Value}>{OtData?.OT}Hr</CustomText>
-                      <CustomText style={[ChartStyle?.MiniCard_Value,{fontSize:14.5}]}>{NumbertoCurrency(OtData?.OTAMT || 0)}</CustomText>
-                     </View>
-
-                    
-                     
-                    
-              </View>
-           
-
-            </View>
-
-            
-          </Animated.View>
-
-          
-{/*
-  <Animated.View
-  style={{
-    opacity: animatedValue,
-  }}
->
+{/* ESI, PF, OT Block */}
+<Animated.View style={{ opacity: animatedValue }}>
   <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
-    <CustomText style={[ChartStyle.MetricTitle,{marginLeft:10}]}> <TouchableOpacity onPress={()=>setyearWiseModal(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}>Working Hours<MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
-      <WorkingHoursChart isLoading={workingdatloading} data={getWorkingDays?.data} setscroll={setscroll}></WorkingHoursChart>
-      <CustomText style={[ChartStyle.MetricTitle,{marginLeft:10,textAlign:"center",fontSize:10,marginTop:10}]}>Year : {Year}</CustomText> 
-   </View>
+    <TouchableOpacity onPress={() => issetOpenYMEPO(true)} style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 }}>
+      <Text style={[ChartStyle.MetricTitle, { fontWeight: "600" }]}>
+        ESI & PF & OT – {esipfdataOnMonth?.PAYPERIOD}
+      </Text>
+      <MaterialCommunityIcons name="filter-outline" size={16} color="#6d6d70" />
+    </TouchableOpacity>
+
+    <View style={{ flexDirection: "row", justifyContent: "space-between",gap:2, marginTop: 14 }}>
+      {/* ESI */}
+      <TouchableOpacity onPress={() => issetIndividualEsiModel(true)} style={[ChartStyle.MiniCard, { backgroundColor: "#15b35a" }]}>
+        <CustomText style={ChartStyle.MiniCard_Title}>ESI</CustomText>
+        <CustomText style={ChartStyle.MiniCard_Value}>{NumbertoCurrency(esipfdataOnMonth?.esi || 0)}</CustomText>
+      </TouchableOpacity>
+
+      {/* PF */}
+      <TouchableOpacity onPress={() => issetIndividualPFModel(true)} style={[ChartStyle.MiniCard, { backgroundColor: "#2ac6d1" }]}>
+        <CustomText style={ChartStyle.MiniCard_Title}>PF</CustomText>
+        <CustomText style={ChartStyle.MiniCard_Value}>{NumbertoCurrency(esipfdataOnMonth?.pf || 0)}</CustomText>
+      </TouchableOpacity>
+
+      {/* OT */}
+      <TouchableOpacity onPress={() => issetIndividualOTModel(true)} style={[ChartStyle.MiniCard, { backgroundColor: "#a159d9" }]}>
+        <CustomText style={ChartStyle.MiniCard_Title}>Over Time</CustomText>
+        <CustomText style={ChartStyle.MiniCard_Value}>{OtData?.OT} Hr</CustomText>
+        <CustomText style={[ChartStyle.MiniCard_Value, { fontSize: 14.5 }]}>
+          {NumbertoCurrency(OtData?.OTAMT || 0)}
+        </CustomText>
+      </TouchableOpacity>
+    </View>
+  </View>
 </Animated.View>
 
-*/
-}
+{/* Attendance Chart */}
 {
-  workingdatloading ? <SkeletonLoader width={"100%"} height={"20%"} style={{textAlien:"center"}}></SkeletonLoader>
-  :<Animated.View
-  style={{
-    opacity: animatedValue,
-  }}
->
-  <View style={[ChartStyle.ChartView]}>
-    <CustomText style={[ChartStyle.MetricTitle,{marginLeft:1}]}> <TouchableOpacity onPress={()=>setyearWiseModal(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}>Attendance Logs <MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
-      <WorkingDaysChart isLoading={workingdatloading} data={getWorkingDays?.data} setscroll={setscroll}></WorkingDaysChart>
-   <CustomText style={[ChartStyle.MetricTitle,{marginLeft:10,textAlign:"center",fontSize:10,marginTop:10}]}>Year : {Year}</CustomText>
-   </View>
-</Animated.View>
+  workingdatloading ? (
+    <SkeletonLoader width={"100%"} height={"20%"} style={{ textAlign: "center" }} />
+  ) : (
+    <Animated.View style={{ opacity: animatedValue }}>
+      <View style={ChartStyle.ChartView}>
+        <TouchableOpacity onPress={() => setyearWiseModal(true)} style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <CustomText style={ChartStyle.MetricTitle}>Attendance Logs</CustomText>
+          <MaterialCommunityIcons name="filter-outline" size={16} color="#6d6d70" />
+        </TouchableOpacity>
 
+        <WorkingDaysChart
+          isLoading={workingdatloading}
+          data={getWorkingDays?.data}
+          year={Year}
+          UserId={UserId}
+          setscroll={setscroll}
+        />
+
+        <CustomText style={[ChartStyle.MetricTitle, { textAlign: "center", fontSize: 10, marginTop: 8 }]}>
+          Year: {Year}
+        </CustomText>
+      </View>
+    </Animated.View>
+  )
 }
 
+{/* Loan Progress Section */}
+<Animated.View style={{ opacity: animatedValue }}>
+  <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
+    <CustomText style={[ChartStyle.MetricTitle, { marginLeft: 10 }]}>Loan Details</CustomText>
+    <LoanProgressBar data={getLoan?.data} />
+  </View>
+</Animated.View>
 
-        
+</View>
 
-        
-
-        <Animated.View
-            style={{
-              opacity: animatedValue,
-            }}
-          >
-            <View style={[ChartStyle.ChartView, { justifyContent: "center"}]}>
-            <Text style={[ChartStyle.MetricTitle,{marginLeft:10}]}> Loan Details</Text>
-           <LoanProgressBar data={getLoan?.data}  ></LoanProgressBar>
-            </View>
-          </Animated.View>
-
-
-
-      
-
-
-{/*
-        <Animated.View
-            style={{
-              opacity: animatedValue,
-            }}
-          >
-            <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
-              <CustomText style={ChartStyle.MetricTitle}>profile Submission</CustomText>
-              <WebView
-                originWhitelist={['*']}
-                source={{ html:htmlRadialBarContent }}
-                style={{ height: chartHeight - 40, width: chartWidth - 40 }}
-                onLoadStart={() => setIsLoading(true)}
-                onLoadEnd={() => setIsLoading(false)}
-                onError={() => setIsLoading(false)}
-              />
-            </View>
-          </Animated.View>
-
-          */}
-
-          
-
-       
-
-
-
-
-       {/*   <Animated.View
-            style={{
-              opacity: animatedValue,
-            }}
-          >
-            <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
-              <CustomText style={ChartStyle.MetricTitle}>Progress Chart</CustomText>
-              <WebView
-                originWhitelist={['*']}
-                source={{ html: htmlContent }}
-                style={{ height: chartHeight - 40, width: chartWidth - 40 }}
-                onLoadStart={() => setIsLoading(true)}
-                onLoadEnd={() => setIsLoading(false)}
-                onError={() => setIsLoading(false)}
-              />
-            </View>
-          </Animated.View>*/}
-
-         
-        </View>
       </ScrollView>
     </View>
     </>

@@ -17,7 +17,7 @@ function OTIndividualModalBody({CurrentOTAmt,CurrentYearandMonth,UserId}) {
       borderWidth: 1,
       borderColor: '#ddd',
       width: "100%",
-      overflow:"hidden",
+      overflowY:"scroll"
     
   },
   row: {
@@ -113,9 +113,9 @@ function OTIndividualModalBody({CurrentOTAmt,CurrentYearandMonth,UserId}) {
 
 </View>
 <CustomText style={EsiandPFBodyStyle?.Datetext}>OT  On : { Otyear ? OtMonth+" "+Otyear : CurrentYearandMonth}</CustomText>
-<ScrollView  horizontal style={{height:"70%",width:"100%"}}    stickyHeaderIndices={[0]} >
+<ScrollView horizontal stickyHeaderIndices={[0]} style={{height:"70%",width:"100%"}} >
 <View style={styles.tableContainer}>
-<View style={[styles.row, styles.headerRow]}>
+             <View style={[styles.row, styles.headerRow]}>
                     <View style={[styles.cell, { width: 30 }]}>
                         <Text style={styles.headerText}>Sno</Text>
                     </View>
@@ -136,11 +136,11 @@ function OTIndividualModalBody({CurrentOTAmt,CurrentYearandMonth,UserId}) {
                 
                 </View>
 
-                <View style={styles.tableContainer}>
-                {/* Table Header */}
               
 
-
+                <ScrollView
+      style={{ height: '70%' }}  
+    >
                 {OverTimedata?.data ? (
                     OverTimedata?.data.map((item, index) => (
                         <View
@@ -173,13 +173,16 @@ function OTIndividualModalBody({CurrentOTAmt,CurrentYearandMonth,UserId}) {
                 )}
 
 
-
+</ScrollView>
 
             </View>
-                </View>
+               
 
 
             </ScrollView>
+
+
+            
 <ScrollView horizontal>
             <View style={styles.tableContainer}>
             <View style={[styles.row, styles.headerRow]}>

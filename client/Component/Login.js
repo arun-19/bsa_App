@@ -23,6 +23,7 @@ import { Entypo, Feather, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import CustomDropdownSelect from './DropDownSelect/DropDownSelect';
 import { screenWidth } from './Utils/Screens';
+import * as Updates from 'expo-updates';
 
 function LoginScreen({ navigation }) {
     const dispatch = useDispatch();
@@ -49,12 +50,13 @@ function LoginScreen({ navigation }) {
                 }));
 
             navigation.navigate('DashBoard');
+            await Updates.reloadAsync();
 
 
     }
 
     const checkUserAuth=()=>{
-        AsyncStorage.getItem("userName",(error,result)=>{
+        AsyncStorage.getItem("userName",async (error,result)=>{
             if(!error){
                 if(result){
                    navigation.navigate("DashBoard")
@@ -62,6 +64,7 @@ function LoginScreen({ navigation }) {
                     index: 0,  // 0 is the index of the new screen.
                     routes: [{ name: 'DashBoard' }],  // The new screen you want to navigate to.
                   })
+                  
 
                 }
             }
@@ -98,7 +101,7 @@ function LoginScreen({ navigation }) {
             // Send login request
             const data = await loginUser({ username, password }).unwrap();
             if (data.message === 'Login Successfull') {
-                alert(JSON?.stringify(data))
+                
                     setGlobal(true)
                     setGlobalData(data?.Global)
                     setId(data?.Id)

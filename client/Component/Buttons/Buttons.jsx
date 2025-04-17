@@ -41,7 +41,6 @@ const FloatingButton = ({ save,edit,editable,New,Update,type}) => {
             name: "bt_edit",
             onPress:  edit,  // Add your Edit functionality here
         } ,
-        editable==false || type=="user" &&
         {
             text: "Save",
             name: "bt_save",

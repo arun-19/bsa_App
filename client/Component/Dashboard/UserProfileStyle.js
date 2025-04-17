@@ -36,9 +36,8 @@ export const UserProfile=StyleSheet.create({
       
     },BlurViewText:{
       marginLeft:"7%",
-      marginBottom:1,
+      marginBottom:3,
       textTransform:"capitalize",
-      fontWeight:"bold",
       color:"white"
       
 

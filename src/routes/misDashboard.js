@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue, getCateogryToTSalary, getCurrentMonthLeaves, getEachOverTimeWages, getESI, getInsuranceData, getLastMonthSalary, getMonthESIPF, getMoreDetails, getOverTime, getOverTimeWages, getShortShipmentRatio, getTotalHeadCount, getTotalStrength, getUserMobData, getYearlyComp, getYearWiseToTSalary, ToTexpenses } from '../services/misDashboard.service.js';
+import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue, getCateogryToTSalary, getCurrentMonthLeaves, getEachOverTimeWages, getESI, getGenderCount, getInOut, getInsuranceData, getLastMonthSalary, getMonthESIPF, getMoreDetails, getOverTime, getOverTimeWages, getShortShipmentRatio, getTotalHeadCount, getTotalStrength, getUserMobData, getYearlyComp, getYearWiseToTSalary, ToTexpenses } from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -25,5 +25,7 @@ router?.get("/getESI",getESI)
 router?.get("/getOverTimeWages",getOverTimeWages)
 router?.get("/getEachOverTimeWages",getEachOverTimeWages)
 router?.get("/getUserMobData",getUserMobData)
+router?.get("/getInOut",getInOut)
+router?.get("/getgendercount",getGenderCount)
 
 export default router;

@@ -4,25 +4,23 @@ import WebView from 'react-native-webview'
 import CustomText from '../../../Text/CustomText';
 
 function DepartMentWisalary({data,setscroll,isLoading:GetDataLoad}) {
-const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 const screenWidth = Dimensions.get('window').width;
   const chartHeight = Dimensions.get('window').height * 0.3; 
   const chartWidth = screenWidth - 20;
-
   var label=[];
-  var value="";
+  var value=[];
 
 
-   
-    if(data?.length>0){
-      data?.forEach((data,index)=>{
-        if(index==0)
-         value=value+`{x:'${data?.DESIGNATION}',y:${data?.NETPAY}}`
-        else
-          value=value+`,{x:'${data?.DESIGNATION}',y:${data?.NETPAY}}`
-      })
-  
-    }
+  if(data?.length>0){
+    data?.forEach((data)=>{
+        label.push(`'${data[0]}'`)
+        value.push(data[1])
+
+    })
+
+  }
+
    
 
 
@@ -48,7 +46,7 @@ const screenWidth = Dimensions.get('window').width;
       * {
         font-family: "Open Sans", sans-serif !important;
         font-style: normal;
-        font-size:20px !important;
+        font-size:24px !important;
         
 
       }
@@ -64,36 +62,41 @@ const screenWidth = Dimensions.get('window').width;
         <script>
       
         var options = {
-          series:[{
-          data:[${value || []}]    
-          
-              }]
-        ,
-          legend: {
-          show: false
+          series: [{
+          data: [${value || []}]
+        }],
+          chart: {
+          type: 'bar',
+          height:840
         },
-        chart: {
-          height: 780,
-          type: 'treemap'
+        plotOptions: {
+          bar: {
+            horizontal: true,
+          }
         },
-
-         plotOptions: {
-            treemap: {
-              colors: '#c5a7d6',  // Custom colors for the boxes
-              enableShades: true,
-              distributed: false,  // Optional, makes the colors apply differently to each segment
-              label: {
-                show: true,
-                formatter: function(value) {
-                  return value.x + ' - ' + value.y; 
-                }
-              }
+        dataLabels: {
+          enabled: true
+        },
+        xaxis: {
+          categories:  [${label || []}],
+        },
+        grid: {
+          xaxis: {
+            lines: {
+              show: true
             }
-           }
+          }
+        },
+        yaxis: {
+          axisTicks: {
+            show: true
+          }
+        }
         };
 
         var chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
+      
     
       </script>
       </body>

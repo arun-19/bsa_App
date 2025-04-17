@@ -15,7 +15,7 @@ export default function UserAndRoles() {
     const handleCreateUserPress = () => setRole(true);
     const handleRolePress = () => setRole(false);
 
-    return (<><NavBar></NavBar>
+    return (<>
         <View style={styles.container}>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity

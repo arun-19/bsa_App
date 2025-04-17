@@ -36,7 +36,7 @@ export default function Home({ navigation }) {
     };
 
     return (
-        <><NavBar />
+        <>
         <View style={styles.mainContainer}>
      
             {/* User Greeting */}

@@ -438,19 +438,35 @@ export async function getTotalHeadCount(req, res) {
     const connection = await getConnection(res)
       try {
         const sql =
-            `SELECT DD.DESIGNATION "label",COUNT(*) CNT "value"
-FROM HREMPLOYMAST BB 
-JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
-JOIN GTDESIGNATIONMAST DD ON DD.GTDESIGNATIONMASTID = CC.DESIGNATION
-WHERE CC.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-)
-AND (CC.LASTWORKDAY IS NULL OR CC.LASTWORKDAY <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-)
-)
-GROUP BY DD.DESIGNATION
-ORDER BY 1`
+            `SELECT 
+    DD.DESIGNATION AS "label",
+    COUNT(*) AS "value"
+FROM 
+    HREMPLOYMAST BB
+JOIN 
+    HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+JOIN 
+    GTDESIGNATIONMAST DD ON DD.GTDESIGNATIONMASTID = CC.DESIGNATION
+WHERE 
+    CC.DOJ <= (
+        SELECT MIN(AA.STDT)
+        FROM MONTHLYPAYFRQ AA
+        WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+    )
+    AND 
+    (
+        CC.LASTWORKDAY IS NULL 
+        OR CC.LASTWORKDAY >= (
+            SELECT MIN(AA.ENDT)
+            FROM MONTHLYPAYFRQ AA
+            WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+        )
+    )
+GROUP BY 
+    DD.DESIGNATION
+ORDER BY 
+    DD.DESIGNATION
+`
             
         const result = await connection.execute(sql)
        
@@ -476,13 +492,38 @@ ORDER BY 1`
 
 
 
+
+export async function getGenderCount(req, res) { 
+    const COMPCODE=req.query.COMPCODE
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `select em.GENDER,Count(*) count from HREMPLOYMAST em,GTCOMPMAST cm where cm.COMPCODE=:COMPCODE group by GENDER,cm.COMPCODE`
+            
+        const result = await connection.execute(sql,{COMPCODE})
+       
+      
+          
+          return res.json({ statusCode: 0, data:result?.rows })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
 export async function getCateogryToTSalary(req,res) { 
  
     const year=req.query.payperiod
     const connection = await getConnection(res)
       try {
         const sql =
-            `SELECT  SUM(A.NETPAY ) "NETPAY",A.PAYPERIOD,C.DESIGNATION
+            `SELECT  C.DESIGNATION,SUM(A.NETPAY ) "NETPAY"
 FROM BPPHPAYROLL A 
 JOIN HREMPLOYDETAILS B ON A.EMPID = B.IDCARD
 JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID = B.DESIGNATION
@@ -495,16 +536,8 @@ ORDER BY C.DESIGNATION`
         const result = await connection.execute(sql,{payperiod:year})
         
 
-        const transformedResult = result?.rows?.map(row => {
-            const keyValuePair = {};
-            // Assuming the first row contains the column names
-            result.metaData.forEach((col, index) => {
-              keyValuePair[col.name] = row[index];
-            });
-            return keyValuePair;
-           });
           
-          return res.json({ statusCode: 0, data: transformedResult })
+          return res.json({ statusCode: 0, data: result?.rows })
     }
     catch (err) {
         console.error('Error retrieving data:', err);
@@ -792,6 +825,48 @@ GROUP BY
 
 
 
+
+export async function getInOut(req,res) { 
+    const payperiod=req.query.payperiod
+    const IDCARD=req.query.Idcard
+    const COMPCODE=req?.query?.COMPCODE
+    const connection = await getConnection(res)
+      try {
+      const sql =
+            `select A.EMPID,to_char(A.INDT,'DD/MM/YYYY') INDT,A.INTIME,to_char(A.OUTDT,'DD/MM/YYYY') OUTDT,A.OUTTIME,A.SHIFTCNT,A.OT,A.PER from bpphdatta a where A.EMPID = :IDCARD
+AND A.DOCDATE BETWEEN (
+SELECT A.STDT FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = :COMPCODE AND A.PAYPERIOD = :PAYPERIOD
+) AND (
+SELECT A.ENDT FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = :COMPCODE AND A.PAYPERIOD = :PAYPERIOD
+)
+ORDER BY A.DOCDATE`
+
+   
+        const result = await connection.execute(sql,{IDCARD,PAYPERIOD:payperiod,COMPCODE})
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
+
 export async function getUserMobData(req,res) { 
     const UserName=req.query.username
     const connection = await getConnection(res)
@@ -837,7 +912,7 @@ export async function ToTexpenses(req,res) {
     const connection = await getConnection(res)
       try {
         const sql =
-            `select SUM(NETPAY) salary
+            `select SUM(NETPAY) salary,'salaries'
        from BPPHPAYROLL a   where a.PAYPERIOD=:payperiod and a.PCTYPE = 'ACTUAL' group by a.PAYPERIOD`
             console.log(sql,year);
             

@@ -12,16 +12,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserDetails } from '../redux/Slices/UserDetails';
 import { useGetCommonDataQuery, useGetUserMobDataQuery } from '../redux/service/misDashboardService';
-import { MaterialCommunityIcons, MaterialIcons, Octicons, SimpleLineIcons } from '@expo/vector-icons';
+import { AntDesign, Entypo, MaterialCommunityIcons, MaterialIcons, Octicons, SimpleLineIcons } from '@expo/vector-icons';
 import { handleLogout } from './Utils/Logout';
 import  LogoutModal  from './Modal/LogutModal';
+import CustomDrawer from './SideBar';
 
 
-export default function NavBar() {
+export default function NavBar({openSidebar, setopenSidebar}) {
     const {fontsLoaded}=useCustomFonts()
     const dispatch=useDispatch()
     const UserSelect=useSelector((state)=>state?.UserDetails)
-    const [openLogoutModal,setLogoutModal]=useState(false)
+    // const [openLogoutModal,setLogoutModal]=useState(false)
     const [modalVisible, setModalVisible]=useState(false)
     const navigation = useNavigation(); // Use the hook to get the navigation object
      const [wishes,setwishes]=useState((new Date().getHours() + 24) % 12 || 12)
@@ -29,9 +30,7 @@ export default function NavBar() {
      const {data:getUserRole,refetch}=useGetCommonDataQuery({table:"MOBILEUSER m,GTDESIGNATIONMAST g,HREMPLOYDETAILS d ",fields:"m.ROLE,d.DEPTNAME,d.HOSTEL,d.PF,d.IDCARD,d.VEHICLE,d.SALTYPE,d.ESI,d.DOJ,g.DESIGNATION,m.IMAGE",where:` d.IDCARD=m.ID and  d.DESIGNATION=g.GTDESIGNATIONMASTID and m.ID='${UserSelect?.UserId}'`})
        const {data:mobData,isSuccess}=useGetUserMobDataQuery({params:{username:UserSelect?.userName}})
 
-     function handleNavigate() {
-        navigation.navigate('USERANDROLES'); // Navigate to user roles screen
-    }
+  
 
     useEffect(()=>{
         if(mobData?.data){
@@ -80,8 +79,9 @@ export default function NavBar() {
     return (
         <SafeAreaView>
         <View style={NewStyle.header}>
+    
             
-          <View style={{position:"absolute"}}>  <LogoutModal isModalVisible={openLogoutModal}  confirm={()=>{
+          {/* <View style={{position:"absolute"}}>  <LogoutModal isModalVisible={openLogoutModal}  confirm={()=>{
             handleLogout(navigation)
             navigation?.reset({
                 index: 0, // This represents the index of the screen in the stack you want to be active
@@ -90,7 +90,7 @@ export default function NavBar() {
                 ],
               })
             setLogoutModal(false)
-          }} cancel={()=>setLogoutModal(false)}></LogoutModal></View>
+          }} cancel={()=>setLogoutModal(false)}></LogoutModal></View> */}
        {  /*   <Image
                 style={styles.title}
                 source={require('./img/bharani-small.png')} 
@@ -120,92 +120,125 @@ export default function NavBar() {
            </View>
        
            <View style={NewStyle?.NotificationView}>
-             <TouchableOpacity onPress={handleNavigate} style={NewStyle.iconContainer}>
-              <MaterialIcons name="manage-accounts" size={24} color="white" />
-        
-                </TouchableOpacity>
-          {/* <FontAwesome name="search" size={24}  color="black" />*/}
-          <TouchableOpacity   onPress={()=>{
             
-            navigation.navigate("HOME")
-           
-            }}>  <Ionicons name="home-outline" size={24} color="white" /></TouchableOpacity>
            <View style={{position:"absolute",textAlign:"center"}}>
            
             <NotificationModal  modalVisible={modalVisible} setModalVisible={setModalVisible}></NotificationModal>
             
             </View>
             
-            <Pressable onPress={()=>setModalVisible(true)} ><Text style={{position:"absolute",backgroundColor:"red",width:20,height:"60%",borderRadius:300,zIndex:20,textAlign:"center",color:"white",left:10,bottom:"50%"}} >2</Text> <Ionicons name="notifications" size={24} color="white" /></Pressable>
+            <Pressable onPress={() => setModalVisible(true)} style={{ position: "relative" }}>
+    <View style={NewStyle.notificationBadge}>
+      <Text style={NewStyle.badgeText}>2</Text>
+    </View>
+    <Ionicons style={NewStyle.iconWrap} name="notifications-outline" size={24} color="#1d1d1f" />
+  </Pressable>
             
             
-            <Pressable onPress={()=>setLogoutModal(true)} > <MaterialCommunityIcons name="location-exit" size={24} color="white" /></Pressable>
-         
+            {/* <Pressable onPress={()=>setLogoutModal(true)} > <MaterialCommunityIcons name="location-exit" size={24} color="black" /></Pressable> */}
+            <Pressable onPress={() => setopenSidebar(true)} style={NewStyle.iconContainer}>
+    <AntDesign name="bars" size={22} color="#1d1d1f" />
+  </Pressable>
            </View>
+
+         
            
         </View>
-        <View style={{position:"absolute",zIndex:10,right:-8,bottom:-13,width:15,borderTopEndRadius:0,borderTopRightRadius:0,height:27,borderBottomStartRadius:9,backgroundColor:"#4927a1",  transform: [{rotateZ:"-40deg"},{rotateY:"20deg"}]}}></View>
-        <View style={{position:"absolute",zIndex:10,left:-8,bottom:-9,width:15,borderTopEndRadius:10,borderTopLeftRadius:0,height:20,borderBottomStartRadius:20,backgroundColor:"#4927a1",  transform: [{rotateZ:"40deg"},{rotateY:"20deg"}]}}></View>
+        {/* <View style={{position:"absolute",zIndex:10,right:-8,bottom:-13,width:15,borderTopEndRadius:0,borderTopRightRadius:0,height:27,borderBottomStartRadius:9,backgroundColor:"#4927a1",  transform: [{rotateZ:"-40deg"},{rotateY:"20deg"}]}}></View>
+        <View style={{position:"absolute",zIndex:10,left:-8,bottom:-9,width:15,borderTopEndRadius:10,borderTopLeftRadius:0,height:20,borderBottomStartRadius:20,backgroundColor:"#4927a1",  transform: [{rotateZ:"40deg"},{rotateY:"20deg"}]}}></View> */}
         </SafeAreaView>
     );
 }
 
 
-const NewStyle=StyleSheet.create({
-
-    header:{
-        paddingTop:"1%",
-        paddingBottom:"5%",
-        marginTop:"auto",
-        flexDirection:"row",
-        justifyContent:"space-between",
-        alignItems:"center",
-        shadowOffset:{width:10,height:1},
-        paddingLeft:10,
-        paddingRight:15,
-        shadowRadius: 1, 
-        elevation:70,
-        shadowColor:"#ffff", 
-        shadowOpacity:.8,
-        backgroundColor:"#4927a1",position:"relative",
-       
-        
-        
-          
+const NewStyle = StyleSheet.create({
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        backgroundColor: "#ffffff",
+        borderBottomWidth: 0.5,
+        borderColor: "#e5e5e5",
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+  
+    wishesView: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
     },
-    wishesView:{
-        flexDirection:"row",
-        gap:2,
-        alignItems:"flex-end",
-        justifyContent:"center",
-       
-       
+  
+    TimeDate: {
+      opacity: 0.5,
+      fontSize: 12,
+      color: "#555",
     },
-    TimeDate:{
-        opacity:.5
+  
+    wishes: {
+        fontSize: 15,
+        fontWeight: "900",
+        letterSpacing: 1.1,
+        color: "#1d1d1f",
+        textShadowColor: 'rgba(0, 0, 0, 0.05)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 1,
+        fontFamily: "System", // Or your custom font if loaded
     },
-    wishes:{
-       fontSize:13.5,
-       fontWeight:"bold",
-       marginLeft:2,
-       letterSpacing:1.8,
-       marginTop:4,
-       color:"white",
-       alignSelf:"center",
-    
-    },NotificationView:{
-        flexDirection:"row",
-        gap:25,
-        alignSelf:"flex-end"
+  
+    NotificationView: {
+      flexDirection: "row",
+      gap: 20,
+      alignItems: "center",
     },
-    iconContainer:{
-        backgroundColor:"rgba(241, 245, 248, 0.23)",
-        padding:2,
-        borderRadius:10
-
-    }
-
-})
+  
+    iconContainer: {
+      padding: 8,
+      borderRadius: 10,
+      backgroundColor: "#f5f5f5",
+      elevation: 2,
+    },
+  
+    notificationBadge: {
+        position: "absolute",
+        top: -5,
+        right: -5,
+        backgroundColor: "#ff3b30",
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+      },
+  
+    badgeText: {
+      color: "white",
+      fontSize: 11,
+      fontWeight: "bold",
+    },
+  
+    profileImage: {
+      width: 40,
+      height: 40,
+      borderRadius: 50,
+      backgroundColor: "#fff",
+      borderWidth: 1,
+      borderColor: "#ddd",
+    },
+    iconWrap: {
+        backgroundColor: "#f2f2f2",
+        padding: 8,
+        borderRadius: 10,
+        elevation: 2,
+      },
+  });
+  
 
 /*
 const styles = StyleSheet.create({

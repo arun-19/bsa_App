@@ -35,13 +35,13 @@ function CustomizeProfile_Higher_Pos({UserId}) {
 
     const [isCameraModal,setisCameraModel]=useState(false)
     const [profilepicture,setprofilepicture]=useState("")
-    const {data:LastMonthSalary}=useGetLastMonthSalaryQuery({Idcard:UserId})
+    const {data:LastMonthSalary}=useGetLastMonthSalaryQuery({Idcard:UserId?.UserId})
     const LastMonthSalaryAmount=NumbertoCurrency(LastMonthSalary?.data?.salary || 0)
   return (
     <>
     <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:20}}><CustomText style={{fontWeight:"bold",fontSize:20}} >My Profile </CustomText><Feather name="edit" style={{marginLeft:10}} size={24} color="black" /></View>
-   <CameraModal visible={isCameraModal} Idcard={UserId} setVisible={setisCameraModel} onPictureTaken={setprofilepicture}></CameraModal>
-    <UserProfileCard UserId={UserId} picture={profilepicture} openCamera={setisCameraModel} ></UserProfileCard>
+   <CameraModal visible={isCameraModal} Idcard={UserId?.UserId} setVisible={setisCameraModel} onPictureTaken={setprofilepicture}></CameraModal>
+    <UserProfileCard USER={UserId} picture={profilepicture} openCamera={setisCameraModel} ></UserProfileCard>
     <View style={SalaryBoard?.SalaryContainer}>
         <View style={SalaryBoard?.salaryBox}><CustomText style={SalaryBoard?.salaryTitle}>LastMonth Salary</CustomText> <CustomText style={SalaryBoard?.salaryValue}>{LastMonthSalaryAmount}</CustomText> </View>
         <View style={SalaryBoard?.salaryBox}><View style={{width:2,height:23,borderLeftWidth:.2,borderColor:"gray",position:"absolute",left:0,marginTop:"25%"}}><Text></Text></View><CustomText style={SalaryBoard?.salaryTitle}>Today Allowance</CustomText><CustomText style={SalaryBoard?.salaryValue}>3000</CustomText></View>

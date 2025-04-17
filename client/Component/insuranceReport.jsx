@@ -13,7 +13,7 @@ export default function InsuranceReport() {
         return due < 30 ? styles.dueDaysWarning : styles.cellNum;
     };
 
-    return (<>   <NavBar />
+    return (<>  
         <View style={styles.pageContainer}>
          
             <Text style={styles.header}>Insurance Detail Report</Text>

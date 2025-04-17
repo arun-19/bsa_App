@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { PieChart } from 'react-native-chart-kit';
 import NavBar from '../Navbar';
 import WebView from 'react-native-webview';
-import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, Fontisto, Foundation, Ionicons, MaterialCommunityIcons, MaterialIcons, SimpleLineIcons } from '@expo/vector-icons';
 import CustomText from '../Text/CustomText';
-import { useGetCateogryToTSalaryQuery, useGetTotalHeadCountQuery, useGetYearWiseToTSalaryQuery, useToTexpensesQuery } from '../../redux/service/misDashboardService';
+import { useGetCateogryToTSalaryQuery, useGetgendercountQuery, useGetTotalHeadCountQuery, useGetYearWiseToTSalaryQuery, useToTexpensesQuery } from '../../redux/service/misDashboardService';
 import CustomDropdown from '../DropDown/CustomDropDown';
 import PagerView from 'react-native-pager-view';
 import { UserProfileCard } from './UserProfile';
@@ -17,6 +17,9 @@ import ToTExpenses from './Chart/Hod/ToTExpenses';
 import { useSelector } from 'react-redux';
 import FilterAnimation from './Chart/Utils/FilterAnim';
 import { CurrentMonthandYear, LastMonthandYear } from '../Utils/getCurrentMonth';
+import WorkingDaysChart from './Chart/Employee/WorkingDays';
+import GenderWiseStrength from './Chart/Hod/GenderWiseStrength';
+import Employee from './Employee';
 
 export default function  HeadofDepartMent({navigation}) {
   const [animatedValue] = useState(new Animated.Value(0));
@@ -32,6 +35,9 @@ export default function  HeadofDepartMent({navigation}) {
   const [OpenCategoryWiseSalary,setOpenCategoryWiseSalary]=useState(false)
   const [cyear,setcyear]=useState()
   const [cMonth,setCMonth]=useState()
+
+  const [tyear,settyear]=useState()
+  const [tMonth,settMonth]=useState()
   const UserId=useSelector((state=>state?.UserDetails))
   
   
@@ -347,13 +353,14 @@ chart.render();
       fontFamily:"Dosis-Bold",
       fontWeight:"900",
       color: '#6d6d70',
-      marginBottom: 10,
+      marginBottom: 3,
     }, MetricTitle_card: {
       fontSize: 14,
       fontFamily:"Dosis-Bold",
       fontWeight:"bold",
       color: 'black',
       marginBottom: 10,
+      
     },
     MetricValue: {
       fontSize: 20,
@@ -391,8 +398,20 @@ chart.render();
     zIndex:500,
     borderWidth:.4,
     borderColor:"#c5c7c9"
-  }
-  });
+  },
+  genderBreakdown: {
+    flexDirection: "column",
+    justifyContent: 'space-between',
+    marginVertical: 4,
+    marginHorizontal:15,
+    gap:10
+  },
+  genderCount: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#444',
+  },
+  })
 
  /* const UserProfile=StyleSheet.create({
     UserDetailContainer:{
@@ -424,15 +443,15 @@ chart.render();
 const {data:TotalHead,isLoading:TotalHeadLoading,isError,error}=useGetTotalHeadCountQuery()
 const {data:getCateogryWiseSalary,isLoading:getCateogryWiseisLoading}=useGetCateogryToTSalaryQuery({params:{payperiod:cMonth && cyear ? cMonth+" "+cyear : LastMonthandYear}})
 
-const {data:getToTExpenses,isLoading:getToTExpensesisLoading}=useToTexpensesQuery({params:{payperiod:cMonth && cyear ? cMonth+" "+cyear : LastMonthandYear}})
-
+const {data:getToTExpenses,isLoading:getToTExpensesisLoading}=useToTexpensesQuery({params:{payperiod:tMonth && tyear ? tMonth+" "+tyear : LastMonthandYear}})
+const {data:getGenderCount,isLoading:getGenderCountLoading}=useGetgendercountQuery({params:{COMPCODE:UserId?.GCOMPCODE}})
 
 
 // if(isError) alert(JSON?.stringify(error.message))
 
 if(TotalHeadLoading) return <View><CustomText>Loading....</CustomText></View>
 
-const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number(cum)+Number(acc.value),0)
+const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Number(cum)+Number(acc.value),0)
 
   
   return (<>
@@ -481,7 +500,7 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
 
     </View>
 
-  <NavBar />
+ 
   
   <PagerView style={{flex:1,height:"100%",width:"100%",padding:0}}  initialPage={0}>
  
@@ -489,10 +508,8 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
     <View style={ChartStyle.page} key="1">
        
     <View style={{ flex: 1, padding: 15, backgroundColor: '#f0f0f0', width: "100%" }}>
-      
-      <TouchableOpacity style={ChartStyle.fab}  onPress={()=>{navigation.navigate("HOME")}}>
-        <Ionicons name="home" size={20} style={{paddingLeft:8}} color="#a4a0ad" />
-      </TouchableOpacity>
+ 
+     
    
    {/*   <View style={[UserProfile?.UserDetailContainer,{width:"100%",height:"40%"}]} >
            <View style={UserProfile?.ImageContainer}>
@@ -506,48 +523,108 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
             </View>
       </View>*/}
     
-      
+    
       <ScrollView 
        showsVerticalScrollIndicator={false}
-      alwaysBounceVertical style={{ padding: 1, width: "100%" , 
+      alwaysBounceVertical style={{ padding: 1, width: "100%" ,top:0,
         scrollbarThumbVertical: 'red', // Thumb color (Android only)
          scrollbarTrackVertical: '#f0f0f0',
           // Track color (Android only)
               }}>
-
+   
         {/* Metrics Section */}
-        <View  style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between'}}>
-        
-          <View style={[ChartStyle.MetricCard,{backgroundColor:"white"}]}>
-             <View style={{flexDirection:"row",gap:40}}> <Text onPress={()=>setOpenHeadCountModal(true)} style={{position:"absolute",elevation:5,top:-50,left:52,backgroundColor:"#f7fcff",padding:2,borderRadius:10}}><AntDesign name="filter" size={24} color="black" style={{textAlign:"center"}} /></Text></View>
-            <CustomText style={ChartStyle.MetricTitle_card}>Total HeadCount</CustomText>
-            <CustomText style={[ChartStyle.MetricValue,{fontSize:10}]}>{selectedDepartment?.label || "Total Members" }</CustomText>
-            <CustomText style={ChartStyle.MetricValue}>{  selectedDepartment?.value || TotalDepartment  }</CustomText>
-           {/* <TouchableOpacity style={ChartStyle.Button}>
-              <CustomText style={{ color: '#fff' }}>View Details</CustomText>
-            </TouchableOpacity>*/}
-          </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', padding: 10 ,paddingTop:0}}>
 
-          <View  style={{ flexDirection: 'column', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <View style={[ChartStyle.MetricCard,{shadowColor:'#afc0db',backgroundColor:"white",position:"relative",zIndex:10}]}>
-          <Text style={{position:"absolute",top:4,left:"99%",backgroundColor:"#f7fcff",elevation:5,padding:2,borderRadius:10}} onPress={()=>setOpenPresntModal(true)}><MaterialCommunityIcons name="account-filter-outline" size={24} color="black" /></Text>
-            <CustomText style={[ChartStyle.MetricTitle_card]}>Total Present</CustomText>
-            <CustomText style={[ChartStyle.MetricValue]}>20Male</CustomText>
-           {/* <TouchableOpacity style={ChartStyle.Button}>
-              <CustomText style={{ color: '#fff' }}>View Details</CustomText>
-            </TouchableOpacity>*/}
-          </View>
-          <View style={[ChartStyle.MetricCard,{backgroundColor:"white"}]}>
-          <Text style={{position:"absolute",top:4,left:"99%",backgroundColor:"#f7fcff",elevation:5,padding:2,borderRadius:10}} onPress={()=>setOpenAbsentModal(true)}><MaterialIcons name="leave-bags-at-home" size={24} color="black" /></Text>
-            <CustomText style={ChartStyle.MetricTitle_card}>Total Absent</CustomText>
-            <CustomText style={ChartStyle.MetricValue}> 2Male</CustomText>
-           {/* <TouchableOpacity style={ChartStyle.Button}>
-              <CustomText style={{ color: '#fff' }}>View Details</CustomText>
-            </TouchableOpacity>*/}
-          </View>
-          </View>
-          
-        </View>
+{/* Headcount Card */}
+<View style={[ChartStyle.MetricCard, {
+  flexBasis: '100%',
+  backgroundColor: 'white',
+  borderRadius: 12,
+  padding: 20,
+  marginBottom: 16,
+  shadowColor: '#000',
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3
+}]}>
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    <CustomText style={[ChartStyle.MetricTitle_card, { fontSize: 18 }]}>Total HeadCount</CustomText>
+    <Text
+      onPress={() => setOpenHeadCountModal(true)}
+      style={{
+        backgroundColor: '#f5eeeb',
+        padding: 8,
+        borderRadius: 8,
+        marginLeft:10
+      }}
+    >
+      <AntDesign name="filter" size={20} color="#c44404" />
+    </Text>
+  </View>
+  <CustomText style={[ChartStyle.MetricValue, { fontSize: 12, color: '#777', marginTop: 4 }]}>
+    {selectedDepartment?.label || "Total Members"}
+  </CustomText>
+  <CustomText style={[ChartStyle.MetricValue, { fontSize: 28, fontWeight: 'bold', marginTop: 2 }]}>
+    {selectedDepartment?.value || TotalDepartment}
+  </CustomText>
+</View>
+
+{/* Present + Absent Cards (side by side) */}
+<View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', width: '100%' }}>
+  
+  {/* Present Card */}
+  <View style={[ChartStyle.MetricCard, {
+    flexBasis: '48%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
+  }]}>
+    <CustomText style={[ChartStyle.MetricTitle_card, { fontSize: 18 }]}>Total Present</CustomText>
+    <View style={{ marginTop: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+        <Fontisto name="male" size={20} color="#9c22e3" style={{ marginRight: 6 }} />
+        <CustomText style={{ fontSize: 16, color: '#333' }}>2 <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Fontisto name="female" size={20} color="#22b3e3" style={{ marginRight: 6 }} />
+        <CustomText style={{ fontSize: 16, color: '#333' }}>1 <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
+      </View>
+    </View>
+  </View>
+
+  {/* Absent Card */}
+  <View style={[ChartStyle.MetricCard, {
+    flexBasis: '48%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 10
+  }]}>
+    <CustomText style={[ChartStyle.MetricTitle_card, { fontSize: 18,color:"red" }]}>Total Absent</CustomText>
+    <View style={{ marginTop: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+        <Fontisto name="male" size={20} color="#9c22e3" style={{ marginRight: 6 }} />
+        <CustomText style={{ fontSize: 16, color: '#333' }}>2 <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Fontisto name="female" size={20} color="#22b3e3" style={{ marginRight: 6 }} />
+        <CustomText style={{ fontSize: 16, color: '#333' }}>1 <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
+      </View>
+    </View>
+  </View>
+
+</View>
+</View>
+
 
       
 
@@ -578,6 +655,21 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
             
           </Animated.View>
 
+
+
+          <Animated.View
+            style={{
+              opacity: animatedValue,
+            }}
+          >
+            <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
+              
+    <CustomText style={[ChartStyle.MetricTitle,{marginLeft:1}]}> <TouchableOpacity onPress={()=>setyearWiseModal(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}> Gender Count<MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
+      <GenderWiseStrength isLoading={getGenderCountLoading} data={getGenderCount?.data}  UserId={UserId} ></GenderWiseStrength>
+   </View>
+</Animated.View>
+          
+
         <Animated.View
             style={{
               opacity: animatedValue,
@@ -598,7 +690,7 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
             }}
           >
             <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
-              <CustomText style={[ChartStyle.MetricTitle]}>Category Wise Salary  Distribution<View style={{flexDirection:"row",gap:40}}> <Text onPress={()=>setOpenCategoryWiseSalary(true)} ><AntDesign name="filter" size={24} color="black" style={{textAlign:"center"}} /></Text></View> </CustomText>
+               <CustomText style={[ChartStyle.MetricTitle,{marginLeft:1}]}> <TouchableOpacity  onPress={()=>setOpenCategoryWiseSalary(true)}  style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}>Category Wise Salary  Distribution <MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
                 {OpenCategoryWiseSalary ? <FilterAnimation></FilterAnimation>: <DepartMentWisalary data={getCateogryWiseSalary?.data} isLoading={getCateogryWiseisLoading}></DepartMentWisalary>}
                 <CustomText style={{textAlign:"center"}}> {cMonth && cyear ? cMonth+" "+cyear : LastMonthandYear} </CustomText>
                  </View>
@@ -643,7 +735,8 @@ const TotalDepartment=TotalHead.data && TotalHead.data?.reduce((cum,acc)=>Number
     </View>
 
     <View style={[ChartStyle.page,{justifyContent:"flex-start",padding:7,marginTop:-15}]} key="2">
-      <CustomizeProfile_Higher_Pos UserId={UserId?.UserId}></CustomizeProfile_Higher_Pos>
+      <CustomText style={{fontWeight:"bold",fontSize:20,marginTop:10,paddingBottom:8}} ><AntDesign name="user" size={24} color="black" /> My Profile </CustomText>
+      <Employee></Employee>
     </View>
     </PagerView>
     </>

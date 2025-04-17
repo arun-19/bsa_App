@@ -16,7 +16,7 @@ export default function AttendanceReport() {
 
     const tableData = data?.data || []
 
-    return (<> <NavBar />
+    return (<> 
         <View style={styles.pageContainer}>
            
             <View style={styles.topBar}>

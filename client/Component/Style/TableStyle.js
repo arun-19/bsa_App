@@ -8,7 +8,8 @@ const Table_styles=StyleSheet?.create({
       borderWidth: 1,
       borderColor: '#ddd',
       width: "100%",
-      overflow:"hidden",
+      overflow:"scroll"
+      
     
   },
   row: {
@@ -25,6 +26,7 @@ const Table_styles=StyleSheet?.create({
   headerRow: {
       backgroundColor: '#2F303C',
       borderTopWidth: 1,
+      
   },
   cell: {
       justifyContent: 'center',
