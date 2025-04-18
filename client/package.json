@@ -8,7 +8,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:tailwind": "tailwindcss --input input.css --output tailwind.css --no-autoprefixer && tailwind-rn",
-    "dev:tailwind": "concurrently \"tailwindcss --input input.css --output tailwind.css --no-autoprefixer --watch\" \"tailwind-rn --watch\""
+    "dev:tailwind": "concurrently \"tailwindcss --input input.css --output tailwind.css --no-autoprefixer --watch\" \"tailwind-rn --watch\"",
+    "eas-build-pre-install": "npm config set legacy-peer-deps true"
   },
   "dependencies": {
     "@expo/config-plugins": "~9.0.0",
@@ -31,7 +32,7 @@
     "axios": "^0.21.1",
     "axois": "^0.0.1-security",
     "dayjs": "^1.11.13",
-    "expo": "^52.0.0",
+    "expo": "~52.0.46",
     "expo-blur": "~14.0.3",
     "expo-build-properties": "^0.13.2",
     "expo-camera": "~16.0.18",

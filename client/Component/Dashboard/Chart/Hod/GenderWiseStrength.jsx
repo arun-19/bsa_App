@@ -30,141 +30,115 @@ const screenWidth = Dimensions.get('window').width;
 
 
 
-  const linechart=` <!DOCTYPE html>
+  const linechart = `
+  <!DOCTYPE html>
   <html>
     <head>
       <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
       <style>
-        * {
-          font-family: "Open Sans", sans-serif;
-          font-size: 25px !important;
-        }
-  
+
+      * {
+        font-family: "Open Sans", sans-serif !important;
+        font-style: normal;
+        font-size:27px !important;
+        
+
+      }
         body {
-         
+          margin: 0;
+          padding: 0;
+          background: transparent;
           display: flex;
+          justify-content: center;
           align-items: center;
           height: 100vh;
-          margin: 0;
         }
-  
-        #chart {
-          max-width: 900px;
-          width: 100%;
-          background: white;
-          border-radius: 15px;
-       
-        }
-  
-        .apexcharts-xaxis-label,
-        .apexcharts-yaxis-label,
-        .apexcharts-text,
-        .apexcharts-tooltip-text {
-          font-family: "Open Sans", sans-serif !important;
-        }
-  
-        .apexcharts-toolbar button {
-          font-size: 25px !important;
-          padding: 10px;
-          min-width: 60px !important;
-        }
+      
+          @keyframes rotateIn {
+    from {
+      transform: rotate(-180deg) scale(0.5);
+      opacity: 0;
+    }
+    to {
+      transform: rotate(0deg) scale(1);
+      opacity: 1;
+    }
+  }
       </style>
     </head>
     <body>
-
-      <div id="chart"></div>
-
-  
+      <div id="chart" ></div>
       <script>
-
-       document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
+        
         var options = {
+          series: [${value || []}],
           chart: {
-            type: 'bar',
-            height: 550,
-            width:'100%',
-            
-            toolbar: {
-              show: true
+          width:"${chartWidth+400}",
+          
+          type: 'donut',
+           animations: {
+    enabled: true,
+    easing: 'easeinout',
+    speed: 800,
+    animateGradually: {
+      enabled: true,
+      delay: 150
+    },
+    dynamicAnimation: {
+      enabled: true,
+      speed: 350
+    }
+       },  animations: {
+                  enabled: true,
+                  easing: 'easeinout',
+                  speed: 800,
+                  animateGradually: { enabled: true, delay: 150 },
+                  dynamicAnimation: { enabled: true, speed: 350 }
+                }
+        },
+        labels: [${label || []}],
+         colors: ['#9c22e3', '#22b3e3'],
+        plotOptions: {
+          pie: {
+            startAngle: -90,
+            endAngle: 270
+          }
+        },
+        dataLabels: {
+          enabled: true
+        },
+        fill: {
+          type: 'gradient',
+        },
+        legend: {
+        position:'bottom',
+          formatter: function(val, opts) {
+            return val + " - " + opts.w.globals.series[opts.seriesIndex]
+          }
+        },
+        responsive: [{
+          breakpoint: 490,
+          options: {
+            chart: {
+              width: 400,
             },
-            events: {
-             dataPointSelection: function(event, chartContext, config) {
-                 category = config.w.config.xaxis.categories[config.dataPointIndex]
-                 value= config.w.config.series[0].data[config.dataPointIndex]
-                 
-                  window.ReactNativeWebView.postMessage(JSON.stringify({
-                    category: category,
-                    value: value
-                  }));
-                
-              }
-           }
-          },
-          plotOptions: {
-            bar: {
-              borderRadius: 10,
-              columnWidth: '35%',
-              distributed: true,
-              padding:20,
-              
-              
-            }, 
-          },
-          dataLabels: {
-            enabled: true,
-            style: {
-              fontSize: '35px',
-              fontWeight: 'bold',
-              colors: ['#fff']
-            },
-  formatter: function (val, opts) {
-    const labels = opts.w.globals.labels;
-    const gender = labels[opts.dataPointIndex];
-    const icon = gender === "Male" ? "👨" : "👩"; // Emoji icons
-    return icon+""+val;
-  }
-          },
-          series: [{
-            name: 'Count',
-            data: [${value || []}]
-          }],
-          xaxis: {
-            categories:  [${label || []}],
-            labels: {
-              style: {
-                fontSize: '25px'
-              }
+            legend: {
+              position: 'left'
             }
-          },
-          colors: [
-          "#03A9F4", "#4CAF50"
-          ],
-          tooltip: {
-            theme: 'dark',
-            style: {
-              fontSize: '25px'
-            }
-          },
-          grid: {
-            borderColor: '#e0e6ed',
-            row: {
-              colors: ['#f9f9f9', 'transparent'],
-              opacity: 0.5
-            }
-          },
+          }
+        }]
         };
-  
+
         var chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
-});
+        });
       </script>
     </body>
   </html>
+  `;
   
-  `
+  
 
 
 
@@ -173,28 +147,30 @@ const screenWidth = Dimensions.get('window').width;
 
   return (<>
 
-    <WebView
-    originWhitelist={['*']}
-    source={{ html:linechart }}
-    style={{ height: chartHeight - 40, width: chartWidth - 40 }}
-    onLoadStart={() => setIsLoading(true)}
-    onLoadEnd={() => setIsLoading(false)}
-    onError={() => setIsLoading(false)}
-    javaScriptEnabled={true}  
-    domStorageEnabled={true}
-    startInLoadingState={true}
-    scalesPageToFit={true}
-    onMessage={(event) => {
-      try {
-        const messageData =JSON.parse( event?.nativeEvent?.data)
-         var Month= AllMonth?.find((data)=>data?.slice(0,3)==messageData?.category)
-         setSelectedMonth(Month)
-        setshowDaysInOutModal(true)
-      } catch (e) {
-        console.error("Error parsing WebView message:", e);
-      }
-    }}
-  />
+<WebView
+  originWhitelist={['*']}
+  source={{ html: linechart }}
+  style={{ height: chartHeight-40, width: chartWidth-40, backgroundColor: 'transparent' }}
+  javaScriptEnabled={true}
+  domStorageEnabled={true}
+  startInLoadingState={true}
+  onLoadStart={() => setIsLoading(true)}
+  onLoadEnd={() => setIsLoading(false)}
+  onError={() => setIsLoading(false)}
+  onMessage={(event) => {
+    try {
+      const messageData = JSON.parse(event?.nativeEvent?.data);
+      const Month = AllMonth?.find(m => m?.slice(0, 3) === messageData?.category);
+      setSelectedMonth(Month);
+      setshowDaysInOutModal(true);
+    } catch (e) {
+      console.error("Error parsing WebView message:", e);
+    }
+  }}
+
+  
+/>
+
   </>
   )
 }

@@ -9,7 +9,7 @@ import { FontAwesome } from "@expo/vector-icons"
 
 function index({...props}) {
 
-  const [Role,setRole]=useState("employee")
+  const [Role,setRole]=useState("hod")
   if(Role=="employee")
   return (
     <Employee {...props}></Employee>

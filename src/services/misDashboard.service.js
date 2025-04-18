@@ -517,6 +517,104 @@ export async function getGenderCount(req, res) {
 
 
 
+
+export async function getTotalPA(req, res) { 
+   
+    const connection = await getConnection(res)
+      try {
+        const sql =
+            `SELECT SUM(A.TOTAL) TOTAL,SUM(A.MALE) TMALE,SUM(A.FEMALE) TFEMALE,
+
+SUM(A.PTOTAL) PTOTAL,SUM(A.PMALE) PMALE,SUM(A.PFEMALE) PFEMALE,
+
+SUM(A.TOTAL)-SUM(A.PTOTAL) ATOTAL,SUM(A.MALE)-SUM(A.PMALE) AMALE,SUM(A.FEMALE)-SUM(A.PFEMALE) AFEMALE FROM
+
+(
+
+SELECT COUNT(*) TOTAL,CASE WHEN B.GENDER = 'MALE' THEN COUNT(*) ELSE 0 END MALE,
+
+CASE WHEN B.GENDER = 'FEMALE' THEN COUNT(*) ELSE 0 END FEMALE,0 PTOTAL,0 PMALE,0 PFEMALE  FROM HREMPLOYDETAILS A
+
+JOIN HREMPLOYMAST B ON A.HREMPLOYMASTID = B.HREMPLOYMASTID
+
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+
+WHERE A.DOJ <= TO_DATE(SYSDATE)
+
+AND (A.LASTWORKDAY <=  TO_DATE(SYSDATE) OR A.LASTWORKDAY IS NULL)
+
+AND C.COMPCODE = :COMPCODE
+
+AND A.IDCARD IN (
+
+SELECT B.IDCARD FROM HRTEAMLINKMAST A
+
+JOIN HRMOBUSERLINK B ON A.TEAMMEMBER = B.IDCARD
+
+JOIN HRMOBUSERLINK BB ON A.HOD = BB.IDCARD
+
+WHERE BB.MUSER = :USERNAME
+
+)
+
+GROUP BY B.GENDER
+
+UNION ALL
+
+SELECT 0 TOTAL,0 MALE,0 FEMALE,COUNT(*) PTOTAL,CASE WHEN B.GENDER = 'MALE' THEN COUNT(*) ELSE 0 END PMALE,
+
+CASE WHEN B.GENDER = 'FEMALE' THEN COUNT(*) ELSE 0 END PFEMALE  FROM HREMPLOYDETAILS A
+
+JOIN HREMPLOYMAST B ON A.HREMPLOYMASTID = B.HREMPLOYMASTID
+
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+
+WHERE A.DOJ <= TO_DATE(SYSDATE)
+
+AND (A.LASTWORKDAY <=  TO_DATE(SYSDATE) OR A.LASTWORKDAY IS NULL)
+
+AND C.COMPCODE = :COMPCODE AND A.IDCARD IN (SELECT DISTINCT AA.IDCARD FROM BPPATT AA WHERE AA.ATTDATE = TO_DATE(SYSDATE) )
+
+AND A.IDCARD IN (
+
+SELECT B.IDCARD FROM HRTEAMLINKMAST A
+
+JOIN HRMOBUSERLINK B ON A.TEAMMEMBER = B.IDCARD
+
+JOIN HRMOBUSERLINK BB ON A.HOD = BB.IDCARD
+
+WHERE BB.MUSER = :USERNAME
+
+)
+
+GROUP BY B.GENDER
+
+) A`
+            
+            const result = await connection.execute(sql,req?.query)
+       
+            const transformedResult = result?.rows?.map(row => {
+                const keyValuePair = {};
+                // Assuming the first row contains the column names
+                result.metaData.forEach((col, index) => {
+                  keyValuePair[col.name] = row[index];
+                });
+                return keyValuePair;
+               });
+              
+              return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+
 export async function getCateogryToTSalary(req,res) { 
  
     const year=req.query.payperiod

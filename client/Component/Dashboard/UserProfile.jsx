@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BASE_URL, USERS_API } from '../../constants/apiUrl';
 import { Image } from 'expo-image';
 import CommonModal from '../Modal/CommonModal';
-import MoreUserDetails from './SubModules/MoreDetails';
+import MoreUserDetails from '../MoreDetails';
 import { useGetMoreDetailsQuery } from '../../redux/service/misDashboardService';
 import { useSelector } from 'react-redux';
 

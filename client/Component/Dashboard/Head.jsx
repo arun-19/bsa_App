@@ -5,7 +5,7 @@ import NavBar from '../Navbar';
 import WebView from 'react-native-webview';
 import { AntDesign, FontAwesome, Fontisto, Foundation, Ionicons, MaterialCommunityIcons, MaterialIcons, SimpleLineIcons } from '@expo/vector-icons';
 import CustomText from '../Text/CustomText';
-import { useGetCateogryToTSalaryQuery, useGetgendercountQuery, useGetTotalHeadCountQuery, useGetYearWiseToTSalaryQuery, useToTexpensesQuery } from '../../redux/service/misDashboardService';
+import { useGetCateogryToTSalaryQuery, useGetgendercountQuery, useGetTotalHeadCountQuery, useGetTotalPAQuery, useGetYearWiseToTSalaryQuery, useToTexpensesQuery } from '../../redux/service/misDashboardService';
 import CustomDropdown from '../DropDown/CustomDropDown';
 import PagerView from 'react-native-pager-view';
 import { UserProfileCard } from './UserProfile';
@@ -302,9 +302,9 @@ chart.render();
       flexWrap: "wrap",
       justifyContent: "center",
       alignItems:"center",
-      gap: 10,
+      gap: 8,
       paddingBottom: 10,
-      paddingTop:12,
+      paddingTop:1,
     }, page: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -443,6 +443,8 @@ chart.render();
 const {data:TotalHead,isLoading:TotalHeadLoading,isError,error}=useGetTotalHeadCountQuery()
 const {data:getCateogryWiseSalary,isLoading:getCateogryWiseisLoading}=useGetCateogryToTSalaryQuery({params:{payperiod:cMonth && cyear ? cMonth+" "+cyear : LastMonthandYear}})
 
+const {data:getAP}=useGetTotalPAQuery({params:{USERNAME:UserId?.userName,COMPCODE:UserId?.GCOMPCODE}})
+
 const {data:getToTExpenses,isLoading:getToTExpensesisLoading}=useToTexpensesQuery({params:{payperiod:tMonth && tyear ? tMonth+" "+tyear : LastMonthandYear}})
 const {data:getGenderCount,isLoading:getGenderCountLoading}=useGetgendercountQuery({params:{COMPCODE:UserId?.GCOMPCODE}})
 
@@ -453,7 +455,7 @@ if(TotalHeadLoading) return <View><CustomText>Loading....</CustomText></View>
 
 const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Number(cum)+Number(acc.value),0)
 
-  
+ var  apData=getAP?.data[0] || {}
   return (<>
   <View style={{position:"absolute"}}> 
     {/*Only for Modal Contant */}
@@ -570,6 +572,7 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
 </View>
 
 {/* Present + Absent Cards (side by side) */}
+
 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', width: '100%' }}>
   
   {/* Present Card */}
@@ -588,11 +591,11 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
     <View style={{ marginTop: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
         <Fontisto name="male" size={20} color="#9c22e3" style={{ marginRight: 6 }} />
-        <CustomText style={{ fontSize: 16, color: '#333' }}>2 <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
+        <CustomText style={{ fontSize: 16, color: '#333' }}>{apData?.PMALE || 0} <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Fontisto name="female" size={20} color="#22b3e3" style={{ marginRight: 6 }} />
-        <CustomText style={{ fontSize: 16, color: '#333' }}>1 <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
+        <CustomText style={{ fontSize: 16, color: '#333' }}>{apData?.PFEMALE || 0} <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
       </View>
     </View>
   </View>
@@ -613,11 +616,11 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
     <View style={{ marginTop: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
         <Fontisto name="male" size={20} color="#9c22e3" style={{ marginRight: 6 }} />
-        <CustomText style={{ fontSize: 16, color: '#333' }}>2 <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
+        <CustomText style={{ fontSize: 16, color: '#333' }}>{apData?.AMALE || 0} <Text style={{ fontWeight: '300', fontSize: 14 }}>Male</Text></CustomText>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Fontisto name="female" size={20} color="#22b3e3" style={{ marginRight: 6 }} />
-        <CustomText style={{ fontSize: 16, color: '#333' }}>1 <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
+        <CustomText style={{ fontSize: 16, color: '#333' }}>{apData?.AFEMALE || 0} <Text style={{ fontWeight: '300', fontSize: 14 }}>Female</Text></CustomText>
       </View>
     </View>
   </View>
@@ -632,6 +635,20 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
 
         {/* Charts Section */}
         <View style={ChartStyle.ChartContainer}>
+
+
+          
+        <Animated.View
+            style={{
+              opacity: animatedValue,
+            }}
+          >
+            <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
+              
+    <CustomText style={[ChartStyle.MetricTitle,{marginLeft:1}]}> <TouchableOpacity onPress={()=>setyearWiseModal(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}>  Employees By Gender<MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
+      <GenderWiseStrength isLoading={getGenderCountLoading} data={getGenderCount?.data}  UserId={UserId} ></GenderWiseStrength>
+   </View>
+</Animated.View>
 
 
         <Animated.View
@@ -657,20 +674,9 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
 
 
 
-          <Animated.View
-            style={{
-              opacity: animatedValue,
-            }}
-          >
-            <View style={[ChartStyle.ChartView, { justifyContent: "center" }]}>
-              
-    <CustomText style={[ChartStyle.MetricTitle,{marginLeft:1}]}> <TouchableOpacity onPress={()=>setyearWiseModal(true)} style={{flexDirection:"row",justifyContent:"center",alignItems:"center",gap:10}}><Text style={ChartStyle?.MetricTitle}> Gender Count<MaterialCommunityIcons style={{borderRadius:30,padding:5}} name="filter-outline" size={15} color="#6d6d70" /></Text></TouchableOpacity></CustomText>
-      <GenderWiseStrength isLoading={getGenderCountLoading} data={getGenderCount?.data}  UserId={UserId} ></GenderWiseStrength>
-   </View>
-</Animated.View>
           
 
-        <Animated.View
+        {/* <Animated.View
             style={{
               opacity: animatedValue,
             }}
@@ -682,7 +688,7 @@ const TotalDepartment=TotalHead?.data && TotalHead.data?.reduce((cum,acc)=>Numbe
             </View>
 
             
-          </Animated.View>
+          </Animated.View> */}
 
         <Animated.View
             style={{

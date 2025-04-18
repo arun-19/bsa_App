@@ -324,6 +324,18 @@ const MisDashboard = createApi({
             }
         },
         providesTags: ['getgendercount'],
+    }),
+    getTotalPA:builder.query({
+        query: ({params}) => {
+            return {
+                url: MIS_DASHBOARD + "/getTotalPA",
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },params
+            }
+        },
+        providesTags: ['getTotalPA'],
     })
 
 })
@@ -353,7 +365,8 @@ export const {
     useGetEachOverTimeWagesQuery,
     useGetUserMobDataQuery,
     useGetInOutQuery,
-    useGetgendercountQuery
+    useGetgendercountQuery,
+    useGetTotalPAQuery
 
 } = MisDashboard;
 

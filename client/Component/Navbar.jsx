@@ -13,9 +13,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserDetails } from '../redux/Slices/UserDetails';
 import { useGetCommonDataQuery, useGetUserMobDataQuery } from '../redux/service/misDashboardService';
 import { AntDesign, Entypo, MaterialCommunityIcons, MaterialIcons, Octicons, SimpleLineIcons } from '@expo/vector-icons';
-import { handleLogout } from './Utils/Logout';
-import  LogoutModal  from './Modal/LogutModal';
-import CustomDrawer from './SideBar';
+;
+import Animated, {
+  useSharedValue,
+  withTiming,
+  Easing,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+} from 'react-native-reanimated';
+
+
+const ANGLE = 10;
+const TIME = 100;
+const EASING = Easing.elastic(1.5);
 
 
 export default function NavBar({openSidebar, setopenSidebar}) {
@@ -24,6 +35,12 @@ export default function NavBar({openSidebar, setopenSidebar}) {
     const UserSelect=useSelector((state)=>state?.UserDetails)
     // const [openLogoutModal,setLogoutModal]=useState(false)
     const [modalVisible, setModalVisible]=useState(false)
+
+    const rotation = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotateZ: `${rotation.value}deg` }],
+  }));
     const navigation = useNavigation(); // Use the hook to get the navigation object
      const [wishes,setwishes]=useState((new Date().getHours() + 24) % 12 || 12)
      const [User,setUserName]=useState()
@@ -31,6 +48,26 @@ export default function NavBar({openSidebar, setopenSidebar}) {
        const {data:mobData,isSuccess}=useGetUserMobDataQuery({params:{username:UserSelect?.userName}})
 
   
+
+       useEffect(()=>{
+       setInterval(() => {
+        rotation.value = withSequence(
+          // deviate left to start from -ANGLE
+          withTiming(-ANGLE, { duration: TIME / 2, easing: EASING }),
+          // wobble between -ANGLE and ANGLE 7 times
+          withRepeat(
+            withTiming(ANGLE, {
+              duration: TIME,
+              easing: EASING,
+            }),
+            7,
+            true
+          ),
+          // go back to 0 at the end
+          withTiming(0, { duration: TIME / 2, easing: EASING })
+        );
+       }, 10000);
+       },[])
 
     useEffect(()=>{
         if(mobData?.data){
@@ -131,7 +168,9 @@ export default function NavBar({openSidebar, setopenSidebar}) {
     <View style={NewStyle.notificationBadge}>
       <Text style={NewStyle.badgeText}>2</Text>
     </View>
+    <Animated.View style={animatedStyle}>
     <Ionicons style={NewStyle.iconWrap} name="notifications-outline" size={24} color="#1d1d1f" />
+    </Animated.View>
   </Pressable>
             
             

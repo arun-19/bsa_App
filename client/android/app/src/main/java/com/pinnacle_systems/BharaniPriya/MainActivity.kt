@@ -1,4 +1,4 @@
-package com.baranipriya
+package com.pinnacle_systems.BharaniPriya
 
 import android.os.Build
 import android.os.Bundle

@@ -209,7 +209,7 @@ const screenWidth = Dimensions.get('window').width;
           }
         ],
           chart: {
-          height: 500,width:"90%",
+          height: "100%",width:"90%",
           type: 'line',
           zoom: {
             enabled: false,

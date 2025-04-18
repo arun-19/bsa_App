@@ -16,7 +16,7 @@ import NavBar from "./Component/Navbar";
 import CustomDrawer from "./Component/SideBar";
 import tabs from "./Component/tabIndex";
 import LoginScreen from "./Component/Login";
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const Stack = createStackNavigator();
 
@@ -73,7 +73,7 @@ const App = () => {
       {currentRoute !== "LOGIN" && (
         <>
           <NavBar openSidebar={SidebarOpen} setopenSidebar={setSidebarOpen} />
-          <CustomDrawer activeRoute={currentRoute} tabs={[{name:"Home",icon: <MaterialIcons name="home" size={24}  />,path:"HOME"},{name:"User Control",icon: <MaterialIcons name="manage-accounts" size={24}  />,path:"USERANDROLES"},{name:"DashBoard",icon: <FontAwesome name="dashboard" size={24} color="black" />,path:"DashBoard"},{name:"Change Password",icon: <MaterialIcons name="password" size={24} color="black" />,path:"ChangePass"}]} openSidebar={SidebarOpen} setopenSidebar={setSidebarOpen} />
+          <CustomDrawer activeRoute={currentRoute} tabs={[{name:"Home",icon: <MaterialIcons name="home" size={24}  />,path:"HOME"},{name:"User Control",icon: <MaterialIcons name="manage-accounts" size={24}  />,path:"USERANDROLES"},{name:"DashBoard",icon: <FontAwesome name="dashboard" size={24} color="black" />,path:"DashBoard"},{name:"Change Password",icon: <MaterialIcons name="password" size={24} color="black" />,path:"ChangePass"},{name:"User Info",icon: <MaterialCommunityIcons name="information" size={24} color="black" />,path:"uinfo"}]} openSidebar={SidebarOpen} setopenSidebar={setSidebarOpen} />
         </>
       )}
 

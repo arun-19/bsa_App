@@ -67,7 +67,7 @@ const screenWidth = Dimensions.get('window').width;
         }],
           chart: {
           type: 'bar',
-          height:840
+         height: "${chartHeight+600}"
         },
         plotOptions: {
           bar: {

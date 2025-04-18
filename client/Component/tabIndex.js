@@ -6,6 +6,7 @@ import LoginScreen from "./Login";
 import UserAndRoles from "./User&roles";
 import AttendanceReport from "./dailyAttendanceReport";
 import index from "./Dashboard/indexDashBoard";
+import UserInfo from "./UserInfo";
 
 
 const tabs = [
@@ -14,7 +15,8 @@ const tabs = [
     { key: 'INSURANCEREPORT', name: "INSURANCEREPORT", component: InsuranceReport },
     { key: "HOME", name: "HOME", component: Home },
     { key: "ATTENDANCEREPORT", name: "ATTENDANCEREPORT", component: AttendanceReport },
-    { key: "DashBoard", name: "DashBoard", component:index  }
+    { key: "DashBoard", name: "DashBoard", component:index  },
+    { key: "uinfo", name: "uinfo", component:UserInfo  }
 ];
 
 export default tabs;
