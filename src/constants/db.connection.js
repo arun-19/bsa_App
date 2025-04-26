@@ -28,11 +28,17 @@ oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
 //       password: "PSSPAYROLL_OCT2024",
 //       connectString: "103.125.155.220:1555/AN01P",
 // };
-const dbConfig = {
-      user: "PSSBPO",
-      password: "PSSBPO_MAY2023",
-      connectString: "203.95.216.155:1555/AVT05p",
-};
+
+ const dbConfig = {  
+       user: "PSSBSA",
+       password: "PSSBSA_MAY2023",
+      connectString: "203.95.216.155:1556/avt06p",
+ };
+// const dbConfig = {
+//        user: "PSSBPO",
+//        password: "PSSBPO_MAY2023",
+//       connectString: "203.95.216.155:1555/AVT05p",
+//  };
 
 export async function getConnection(res) {
       let connection;

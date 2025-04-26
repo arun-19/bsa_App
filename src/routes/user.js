@@ -6,7 +6,7 @@ const upload = multer({ limits:  {
     fields: 10, // Limit number of fields (optional)
     fieldSize: 100 * 1024 * 1024, // Set the field value size limit to 100MB (if you are sending large data in form fields)
   },storage: multer.memoryStorage()});
-import { login, create, get, remove, getOne, getUserDet, getDesignation, getRolesOnPage, createRoleOnPage, getUserDetails, UpdateRoleOnPage, UploadImage, getUserImage } from "../services/user.service.js";
+import { login, create, get, remove, getOne, getUserDet, getDesignation, getRolesOnPage, createRoleOnPage, getUserDetails, UpdateRoleOnPage, UploadImage, getUserImage, getCompanyCode, getEmployeeIds } from "../services/user.service.js";
 import multer from 'multer';
 
 router.post('/login', login);
@@ -33,6 +33,9 @@ router.get("/getUserImage/:USERNAME",getUserImage)
 router.delete('/', remove)
 
 router.post("/UpdateRoleOnPage",UpdateRoleOnPage)
+
+router.get("/getCompanyCode",getCompanyCode)
+router.get("/getEmployeeIds",getEmployeeIds)
 
 
 // router.put('/', put)

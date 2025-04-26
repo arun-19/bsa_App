@@ -15,10 +15,13 @@ import {
   poData,
   misDashboard,
   ordManagement,
-  user
+  user,
+  Leave
 } from "./src/routes/index.js"
 import { getConnection } from './src/constants/db.connection.js';
 import bodyParser from 'body-parser';
+import { PrismaClient } from './src/generated/prisma/client.js';
+
 
 const app = express()
 app.use(express.json())
@@ -31,6 +34,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const path = __dirname + '/web-build/';
+
+
+
 
 app.use(express.static(path));
 
@@ -52,6 +58,8 @@ app.use('/poData', poData)
 app.use('/misDashboard', misDashboard)
 
 app.use('/ordManagement', ordManagement)
+
+app.post('/leave',Leave)
 
 
 export async function getCommonData(req, res) {
@@ -105,3 +113,6 @@ const PORT = 8025;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+
+export const prisma_Connector = new PrismaClient();

@@ -494,7 +494,7 @@ ORDER BY
 
 
 export async function getGenderCount(req, res) { 
-    const COMPCODE=req.query.COMPCODE
+    const COMPCODE=req.headers?.COMPCODE
     const connection = await getConnection(res)
       try {
         const sql =
@@ -652,7 +652,7 @@ ORDER BY C.DESIGNATION`
 export async function getOverTime(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
-    const COMPCODE=req.query.COMPCODE
+    const COMPCODE=req?.headers?.COMPCODE
     const connection = await getConnection(res)
       try {
         const sql =
@@ -704,6 +704,7 @@ ORDER BY A.DOCDATE`
 
 export async function getEachOverTimeWages(req,res) { 
     const payperiod=req.query.payperiod
+    const COMPCODE=req?.headers?.COMPCODE
     const months = [
         { label: 'January', value: 1},
         { label: 'February', value:2 },
@@ -729,7 +730,7 @@ export async function getEachOverTimeWages(req,res) {
     const connection = await getConnection(res)
       try {
         const sql =
-            `select a.OT,to_char(a.DOCDATE,'DD/MM/YYYY')  DOCDATE,(select max(b.gross) from bpphpayroll b where b.PAYPERIOD=a.PAYPERIOD and b.EMpid=a.EMPID ) gross  from  hrepinfomast h,bpphdatta a where  h.IDNO=a.ID and h.IDNO=:IDCARD  and EXTRACT(month FROM a.DOCDATE )=:MONTH and EXTRACT(year FROM a.DOCDATE )=:YEAR and  a.COMPCODE='BPP' and h.ACTUAL='T' and h.BUYER='F'  order by a.DOCDATE `
+            `select a.OT,to_char(a.DOCDATE,'DD/MM/YYYY')  DOCDATE,(select max(b.gross) from ${COMPCODE}hpayroll b where b.PAYPERIOD=a.PAYPERIOD and b.EMpid=a.EMPID ) gross  from  hrepinfomast h,bpphdatta a where  h.IDNO=a.ID and h.IDNO=:IDCARD  and EXTRACT(month FROM a.DOCDATE )=:MONTH and EXTRACT(year FROM a.DOCDATE )=:YEAR and  a.COMPCODE='BPP' and h.ACTUAL='T' and h.BUYER='F'  order by a.DOCDATE `
         const result = await connection.execute(sql,{IDCARD,MONTH:Mothval?.value,YEAR:Year})
         
         const transformedResult = result?.rows?.map(row => {
@@ -756,10 +757,11 @@ export async function getEachOverTimeWages(req,res) {
 export async function getOverTimeWages(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
+    const COMPCODE=req?.headers?.COMPCODE
     const connection = await getConnection(res)
       try {
         const sql =
-            `select  sum(OTWAGES) otwages,payperiod from BPPHPAYROLL where PCTYPE='ACTUAL' and ID=:IDCARD and payperiod=:payperiod group by payperiod`
+            `select  sum(OTWAGES) otwages,payperiod from ${COMPCODE}HPAYROLL where PCTYPE='ACTUAL' and ID=:IDCARD and payperiod=:payperiod group by payperiod`
 
    
         const result = await connection.execute(sql,{payperiod,IDCARD})
@@ -824,13 +826,14 @@ export async function getESI(req,res) {
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
     const type=req?.query?.type
+    const COMPCODE=req?.headers?.COMPCODE
     const connection = await getConnection(res)
       try {
 
         var whereparams= type=="M" || !type ? {PAYPERIOD:payperiod,IDCARD} : {IDCARD}
          const sql = type=="M" || !type ?
             `SELECT  SUM(A.ESI) "esi",A.PAYPERIOD
-FROM BPPHPAYROLL A WHERE A.EMPID=:IDCARD 
+FROM ${COMPCODE}HPAYROLL A WHERE A.EMPID=:IDCARD 
 AND A.PAYPERIOD=:PAYPERIOD 
 AND A.PCTYPE = 'ACTUAL'
 GROUP BY A.PAYPERIOD` :
@@ -839,7 +842,7 @@ GROUP BY A.PAYPERIOD` :
     SUM(A.pf) AS "pf", 
     A.PAYPERIOD
 FROM 
-    BPPHPAYROLL A 
+   ${COMPCODE}HPAYROLL A 
 WHERE 
     A.EMPID = :IDCARD 
     AND A.PCTYPE = 'ACTUAL'
@@ -876,12 +879,13 @@ export async function getMonthESIPF(req,res) {
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
     const type=req?.query?.type
+    const COMPCODE=req?.headers?.COMPCODE
     const connection = await getConnection(res)
       try {
         var whereparams= type=="M" || !type ? {PAYPERIOD:payperiod,IDCARD} : {IDCARD}
         const sql =type=="M" || !type ?
             `SELECT  SUM(A.ESI) "esi",SUM(A.pf) "pf",A.PAYPERIOD
-FROM BPPHPAYROLL A WHERE A.EMPID=:IDCARD 
+FROM ${COMPCODE}HPAYROLL A WHERE A.EMPID=:IDCARD 
 AND A.PAYPERIOD=:PAYPERIOD 
 AND A.PCTYPE = 'ACTUAL'
 GROUP BY A.PAYPERIOD`:`SELECT 
@@ -889,7 +893,7 @@ GROUP BY A.PAYPERIOD`:`SELECT
     SUM(A.pf) AS "pf", 
     A.PAYPERIOD
 FROM 
-    BPPHPAYROLL A 
+    ${COMPCODE}HPAYROLL A 
 WHERE 
     A.EMPID = :IDCARD 
     AND A.PCTYPE = 'ACTUAL'
@@ -927,11 +931,12 @@ GROUP BY
 export async function getInOut(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
-    const COMPCODE=req?.query?.COMPCODE
+    const COMPCODE=req?.headers?.COMPCODE
+    
     const connection = await getConnection(res)
       try {
       const sql =
-            `select A.EMPID,to_char(A.INDT,'DD/MM/YYYY') INDT,A.INTIME,to_char(A.OUTDT,'DD/MM/YYYY') OUTDT,A.OUTTIME,A.SHIFTCNT,A.OT,A.PER from bpphdatta a where A.EMPID = :IDCARD
+            `select A.EMPID,to_char(A.INDT,'DD/MM/YYYY') INDT,A.INTIME,to_char(A.OUTDT,'DD/MM/YYYY') OUTDT,A.OUTTIME,A.SHIFTCNT,A.OT,A.PER from ${COMPCODE}hdatta a where A.EMPID = :IDCARD
 AND A.DOCDATE BETWEEN (
 SELECT A.STDT FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = :COMPCODE AND A.PAYPERIOD = :PAYPERIOD
 ) AND (
@@ -966,15 +971,15 @@ ORDER BY A.DOCDATE`
 
 
 export async function getUserMobData(req,res) { 
-    const UserName=req.query.username
+    const GCOMPCODE=req?.headers?.GCOMPCODE
+    const Idcard=req.query.Idcard
     const connection = await getConnection(res)
       try {
         const sql =
-            `SELECT * FROM MOBUSERVIEW B
-WHERE UPPER(B.MUSER) = UPPER(:USERNAME)`
+            `SELECT * FROM MOBUSERVIEW  where IDCARD=:Idcard and GCOMPCODE=:GCOMPCODE`
 
    
-        const result = await connection.execute(sql,{USERNAME:UserName})
+        const result = await connection.execute(sql,{GCOMPCODE,Idcard})
         
         const transformedResult = result?.rows?.map(row => {
             const keyValuePair = {};
@@ -1002,16 +1007,15 @@ WHERE UPPER(B.MUSER) = UPPER(:USERNAME)`
 
 
 
-export async function ToTexpenses(req,res) { 
-
-    console.log(req);
-    
+export async function ToTexpenses(req,res) {  
     const year=req.query.payperiod
+    const COMPCODE=req?.headers?.COMPCODE
     const connection = await getConnection(res)
+    
       try {
         const sql =
             `select SUM(NETPAY) salary,'salaries'
-       from BPPHPAYROLL a   where a.PAYPERIOD=:payperiod and a.PCTYPE = 'ACTUAL' group by a.PAYPERIOD`
+       from ${COMPCODE}HPAYROLL a   where a.PAYPERIOD=:payperiod and a.PCTYPE = 'ACTUAL' group by a.PAYPERIOD`
             console.log(sql,year);
             
         const result = await connection.execute(sql,{payperiod:year})

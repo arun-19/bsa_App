@@ -1,33 +1,27 @@
 import bcrypt from "bcrypt"
 import { getConnection } from "../constants/db.connection.js";
 import OracleDB from "oracledb";
+import { prisma_Connector } from "../../index.js";
 
 
 
 
 export async function login(req, res) {
-    const connection = await getConnection(res)
+    // const connection = await getConnection(res)
     const { username, password } = req.body
     if (!username) return res.json({ statusCode: 1, message: "Username is Required" })
     if (!password) return res.json({ statusCode: 1, message: "Password is Required" });
 
-    const sql = ` SELECT * FROM MOBUSERVIEW B
-WHERE UPPER(B.MUSER) = UPPER('${username}')`
-
+    const sql =await prisma_Connector.user.findFirst({where:{username:username},include:{Companies:true}})
 
    
-
-    const result = await connection?.execute(sql)
-   
-
-
-    if (result.rows.length === 0) return res.json({ statusCode: 1, message: "Username Doesn't Exist" })
-    let storedPassword = result.rows[0][17]
+    if (!sql?.username) return res.json({ statusCode: 1, message: "Username Doesn't Exist" })
+    let storedPassword = sql?.password
 
     const isMatched = await bcrypt.compare(password, storedPassword)
 
 
-    if (!isMatched) return res.json({ statusCode: 1, message: "Password Doesn't Match",Id:result.rows[0][4] })
+    if (!isMatched) return res.json({ statusCode: 1, message: "Password Doesn't Match",Id:sql?.id})
     console.log(isMatched, 'isMatched');
     // let gtCompMastId = result.rows[0][2]
     // let supplyDetails = await connection.execute(`
@@ -38,36 +32,33 @@ WHERE UPPER(B.MUSER) = UPPER('${username}')`
     // `, { gtCompMastId })
     // supplyDetails = supplyDetails.rows.map(item => item[0])
 
-    const sql2 = `select distinct a.compcode as "label",a.compcode as "value"  from gtcompmast a,gtempcompdet b,gtempmast c
-where a.gtcompmastid=b.empcomp and b.gtempmastid=c.gtempmastid
-and lower(c.eusers) = lower(:username)
-and ptransaction='COMPANY'
-order by 1`
+//     const sql2 = `SELECT A.COMPCODE "label",A.COMPCODE "value" FROM GTCOMPMAST A 
+// WHERE A.PTRANSACTION = 'COMPANY' ORDER BY 1`
    
 
-    const result2 = await connection?.execute(sql2,{username})
+    // const result2 = await connection?.execute(sql2)
 
    
 
-    const transformedResult = result2?.rows?.map(row => {
-        const keyValuePair = {};
-        // Assuming the first row contains the column names
-        result2.metaData.forEach((col, index) => {
-          keyValuePair[col.name] = row[index];
-        });
-        return keyValuePair;
-       });
+    // const transformedResult = result2?.rows?.map(row => {
+    //     const keyValuePair = {};
+    //     // Assuming the first row contains the column names
+    //     result2.metaData.forEach((col, index) => {
+    //       keyValuePair[col.name] = row[index];
+    //     });
+    //     return keyValuePair;
+    //    });
   
 
     
-    await connection.close()
-    return res.json({ statusCode: 0, message: "Login Successfull" ,Id:result.rows[0][1],Global:transformedResult})
+    // await connection.close()
+    return res.json({ statusCode: 0, message: "Login Successfull" ,data:sql})
 
 }
 
 export async function create(req, res) {
     const connection = await getConnection();
-    const { username, password, checkboxes, email, role } = req.body;
+    const { username, password, checkboxes, email, role,Idcard,Compcodes} = req.body;
     console.log(role, 'check');
 
     const roles = checkboxes || [].map((item) => item.id)
@@ -79,31 +70,32 @@ export async function create(req, res) {
     }
 
     try {
-        const userNameResult = await connection.execute(
-            'SELECT COUNT(*) as count FROM mobileuser WHERE username = :username',
-            { username }
-        );
-
-        if (userNameResult.rows[0][0] > 0) {
-            await connection.close();
-            return res.json({ statusCode: 1, message: 'UserName Already Exsist' });
-        }
+         const userNameResult = await prisma_Connector.user.findFirst({where:{username:username}})
+         if (userNameResult?.name) {
+             await connection.close();
+             return res.json({ statusCode: 1, message: 'UserName Already Exsist' });
+         }
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
+        var UserCreation=await prisma_Connector.user.create({data:{username:username, password:hashedPassword,email:email,Idcard,Companies:{create:Compcodes}}})
+    
+    
 
-        const sql = 'INSERT INTO mobileuser(username, password,email,role) VALUES (:username, :hashedPassword, :email, :role)';
+        // const sql = 'INSERT INTO mobileuser(username, password,email,role) VALUES (:username, :hashedPassword, :email, :role)';
 
-        await connection.execute(sql, { username, hashedPassword, email, role });
+        // await connection.execute(sql, { username, hashedPassword, email, role });
+
+           
+
         const userRoleSql = 'INSERT INTO mobuserlog(userName, ALLOWEDPAGES, createdDate) VALUES (:username, :ALLOWEDPAGES, :createdDate)';
-        console.log(userRoleSql, 'userRoleSql');
         for (const role of roles) {
             await connection.execute(userRoleSql, { username, ALLOWEDPAGES: role, createdDate });
             console.log(role, 'role');
         }
         await connection.commit();
         await connection.close();
-        return res.json({ statusCode: 0, message: 'User created successfully' });
+        return res.json({ statusCode: 0, message: 'User created successfully' ,data:UserCreation});
     } catch (error) {
         console.error(error);
         await connection.close();
@@ -116,15 +108,14 @@ export async function get(req, res) {
 
     const connection = await getConnection(res)
     try {
-        const sql = ` select * from mobileuser`
-        const result = await connection.execute(sql)
-        const resp = result.rows.map(user => ({
-            userName: user[0], password: user[1],
-            email: user[2], role: user[3]
-        }))
-        console.log(resp, '102');
+        
+        const result =await prisma_Connector.user.findMany({select:{username:true,email:true,Companies:true}})
 
-        return res.json({ statusCode: 0, data: resp })
+        const mapdata=result.map((data)=>({
+            username:data?.username,gmail:data?.email
+        }))
+
+        return res.json({ statusCode: 0, data:mapdata })
     }
     catch (err) {
         console.log(err)
@@ -431,6 +422,76 @@ export async function UpdateRoleOnPage(req, res) {
         return res.json({ statusCode: 1, message: 'An error occurred while creating the user' });
     }
 }
+
+
+
+
+
+export async function getCompanyCode(req,res) { 
+   
+    const connection = await getConnection(res)
+      try {
+        
+        const sql =`SELECT A.COMPCODE "id",A.COMPCODE "value" FROM GTCOMPMAST A 
+WHERE A.PTRANSACTION = 'COMPANY' ORDER BY 1`
+
+   
+        const result = await connection.execute(sql)
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+
+export async function getEmployeeIds(req,res) { 
+   
+    const connection = await getConnection(res)
+      try {
+        
+        const sql =`SELECT C.COMPCODE||'( '||B.IDCARD|| ')' "value",B.IDCARD "id",C.COMPCODE,C.COMPNAME FROM HREMPLOYMAST A 
+JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID = B.HREMPLOYMASTID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
+ORDER BY 3,TO_NUMBER(B.IDCARD)`
+
+   
+        const result = await connection.execute(sql)
+        
+        const transformedResult = result?.rows?.map(row => {
+            const keyValuePair = {};
+            // Assuming the first row contains the column names
+            result.metaData.forEach((col, index) => {
+              keyValuePair[col.name] = row[index];
+            });
+            return keyValuePair;
+           });
+          
+          return res.json({ statusCode: 0, data: transformedResult })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
 
 
 
