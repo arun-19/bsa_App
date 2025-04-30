@@ -6,3 +6,7 @@ export { default as misDashboard } from './misDashboard.js'
 export { default as ordManagement } from './orderManagement.js'
 export { default as user } from './user.js'
 export { default as Leave } from './Leave.js'
+
+export {default as Permission} from  "./PermissionEntry.js"
+
+export {default as Notification} from  "./Notification.js"

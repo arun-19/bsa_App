@@ -14,25 +14,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 //Used
 model User {
   id                   Int                @id @default(autoincrement())
   username             String             @unique
   email                String?
-  password             String
-  Idcard               String
+  password             String?
+  Idcard               String             @unique
   role                 Role?              @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId               Int?
   otp                  String?
+  hod                  String?
+  Permission           PermissionEntry[]
   verificationOtp      String?
   expiresAt            DateTime?
   createdAt            DateTime?          @default(now())
   active               Boolean            @default(true)
   UserOnBranch         UserOnBranch[]
   employeeId           Int?
-  Companies             CompanyCode[]
+  Companies            CompanyCode[]
   Employee             Employee?          @relation(fields: [employeeId], references: [id])
   isAllParty           Boolean            @default(false)
   isAdmin              Boolean            @default(false)
@@ -46,18 +46,51 @@ model User {
   CostingAdminResaved  Costing[]          @relation(name: "adminResaved")
   UserAdminDet         UserAdminDet[]     @relation("UserRelation")
   AdminDet             UserAdminDet[]     @relation("AdminRelation")
+  fcm                  String             @default("")
+  PermissionEntry      PermissionEntry[]  @relation("PermissionHod")
+
+  PermissionEntryUser PermissionEntry[] @relation("User")
 }
 
 //used 
 
-model CompanyCode{
-    id  Int @id @default(autoincrement())
-    Idcard  String 
-    companyCode String
-    User User[]
+model CompanyCode {
+  id          Int    @id @default(autoincrement())
+  Idcard      String
+  companyCode String
+  User        User   @relation(fields: [Idcard], references: [Idcard])
+
+  @@index([Idcard])
 }
 
+model PermissionDocID {
+  id    Int @id @default(autoincrement())
+  count Int
+}
 
+model PermissionEntry {
+  id             Int       @id @default(autoincrement())
+  createdOn      DateTime  @default(now())
+  createdBy      String
+  modifiedOn     DateTime? @default(now())
+  isCancelled    Boolean   @default(false)
+  userId         String
+  compCode       String
+  docid          String    @unique
+  docDate        DateTime
+  fTime          String
+  tTime          String
+  thrs           String
+  permissionId   String    @default(uuid())
+  reason         String?
+  approvalStatus String    @default("pending")
+  hod            String
+  hodId          User      @relation("PermissionHod", fields: [hod], references: [Idcard])
+  userdata       User      @relation("User", fields: [userId], references: [Idcard])
+  User           User[]
+
+  @@map("PermissionEntry") // optional: map to actual table name if needed
+}
 
 model Page {
   id          Int          @id @default(autoincrement())
@@ -228,8 +261,6 @@ model RoleOnPage {
 
   @@unique([roleId, pageId])
 }
-
-
 
 model UserAdminDet {
   id          Int     @id @default(autoincrement())

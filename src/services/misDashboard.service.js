@@ -5,6 +5,7 @@ import { currentDate, tommorowDate } from "../Helpers/helper.js";
 import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss }
     from "../queries/misDashboard.js";
 import moment from "moment";
+import { prisma_Connector } from "../../index.js";
 
 
 export async function get(req, res) {
@@ -435,10 +436,44 @@ ORDER BY 2
 
 
 export async function getTotalHeadCount(req, res) { 
+
+// correct Query
+
+//  SELECT 
+//     DD.DESIGNATION AS "label",
+//     COUNT(*) AS "value"
+// FROM 
+//     HREMPLOYMAST BB
+// JOIN 
+//     HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+// JOIN 
+//     GTDESIGNATIONMAST DD ON DD.GTDESIGNATIONMASTID = CC.DESIGNATION
+// WHERE 
+//     CC.DOJ <= (
+//         SELECT MIN(AA.STDT)
+//         FROM MONTHLYPAYFRQ AA
+//         WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+//     )
+//     AND 
+//     (
+//         CC.LASTWORKDAY IS NULL 
+//         OR CC.LASTWORKDAY >= (
+//             SELECT MIN(AA.ENDT)
+//             FROM MONTHLYPAYFRQ AA
+//             WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+//         )
+//     )
+// GROUP BY 
+//     DD.DESIGNATION
+// ORDER BY 
+//     DD.DESIGNATION
+
+
     const connection = await getConnection(res)
       try {
         const sql =
-            `SELECT 
+            `
+    SELECT 
     DD.DESIGNATION AS "label",
     COUNT(*) AS "value"
 FROM 
@@ -447,21 +482,7 @@ JOIN
     HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
 JOIN 
     GTDESIGNATIONMAST DD ON DD.GTDESIGNATIONMASTID = CC.DESIGNATION
-WHERE 
-    CC.DOJ <= (
-        SELECT MIN(AA.STDT)
-        FROM MONTHLYPAYFRQ AA
-        WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-    )
-    AND 
-    (
-        CC.LASTWORKDAY IS NULL 
-        OR CC.LASTWORKDAY >= (
-            SELECT MIN(AA.ENDT)
-            FROM MONTHLYPAYFRQ AA
-            WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-        )
-    )
+
 GROUP BY 
     DD.DESIGNATION
 ORDER BY 
@@ -494,11 +515,11 @@ ORDER BY
 
 
 export async function getGenderCount(req, res) { 
-    const COMPCODE=req.headers?.COMPCODE
+    const COMPCODE=String(req.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         const sql =
-            `select em.GENDER,Count(*) count from HREMPLOYMAST em,GTCOMPMAST cm where cm.COMPCODE=:COMPCODE group by GENDER,cm.COMPCODE`
+            `select em.GENDER,Count(*) count from HREMPLOYMAST em,GTCOMPMAST cm where cm.COMPCODE=:COMPCODE and cm.ACTIVE='T' group by GENDER,cm.COMPCODE`
             
         const result = await connection.execute(sql,{COMPCODE})
        
@@ -519,6 +540,7 @@ export async function getGenderCount(req, res) {
 
 
 export async function getTotalPA(req, res) { 
+  const COMPCODE=req.headers?.compcode
    
     const connection = await getConnection(res)
       try {
@@ -545,18 +567,7 @@ AND (A.LASTWORKDAY <=  TO_DATE(SYSDATE) OR A.LASTWORKDAY IS NULL)
 
 AND C.COMPCODE = :COMPCODE
 
-AND A.IDCARD IN (
-
-SELECT B.IDCARD FROM HRTEAMLINKMAST A
-
-JOIN HRMOBUSERLINK B ON A.TEAMMEMBER = B.IDCARD
-
-JOIN HRMOBUSERLINK BB ON A.HOD = BB.IDCARD
-
-WHERE BB.MUSER = :USERNAME
-
-)
-
+AND A.IDCARD=:IDCARD
 GROUP BY B.GENDER
 
 UNION ALL
@@ -573,25 +584,15 @@ WHERE A.DOJ <= TO_DATE(SYSDATE)
 
 AND (A.LASTWORKDAY <=  TO_DATE(SYSDATE) OR A.LASTWORKDAY IS NULL)
 
-AND C.COMPCODE = :COMPCODE AND A.IDCARD IN (SELECT DISTINCT AA.IDCARD FROM BPPATT AA WHERE AA.ATTDATE = TO_DATE(SYSDATE) )
+AND C.COMPCODE = :COMPCODE AND A.IDCARD IN (SELECT DISTINCT AA.IDCARD FROM BVKATT AA WHERE AA.ATTDATE = TO_DATE(SYSDATE) )
 
-AND A.IDCARD IN (
-
-SELECT B.IDCARD FROM HRTEAMLINKMAST A
-
-JOIN HRMOBUSERLINK B ON A.TEAMMEMBER = B.IDCARD
-
-JOIN HRMOBUSERLINK BB ON A.HOD = BB.IDCARD
-
-WHERE BB.MUSER = :USERNAME
-
-)
+AND A.IDCARD=:IDCARD
 
 GROUP BY B.GENDER
 
 ) A`
             
-            const result = await connection.execute(sql,req?.query)
+            const result = await connection.execute(sql,{})
        
             const transformedResult = result?.rows?.map(row => {
                 const keyValuePair = {};
@@ -615,14 +616,38 @@ GROUP BY B.GENDER
 
 
 
+ 
+
+
+
+        export async function getFilterEmployees(req,res) { 
+
+            const hod=req?.query?.hod
+
+
+              try {
+              
+                const result =await prisma_Connector.user.findMany({select:{Idcard:true},where:{hod}})
+                  return res.json({ statusCode: 0, data: result })
+                 
+            }
+            catch (err) {
+                console.error('Error retrieving data:', err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+            
+        }
+
+
 export async function getCateogryToTSalary(req,res) { 
  
     const year=req.query.payperiod
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         const sql =
             `SELECT  C.DESIGNATION,SUM(A.NETPAY ) "NETPAY"
-FROM BPPHPAYROLL A 
+FROM ${COMPCODE}HPAYROLL A 
 JOIN HREMPLOYDETAILS B ON A.EMPID = B.IDCARD
 JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID = B.DESIGNATION
 WHERE A.PAYPERIOD=:PAYPERIOD 
@@ -652,7 +677,7 @@ ORDER BY C.DESIGNATION`
 export async function getOverTime(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         const sql =
@@ -665,7 +690,7 @@ JOIN HRPAYCOMPONENTS CC ON BB.PAYCODE = CC.HRPAYCOMPONENTSID
 WHERE AA.EFFDATE IN (SELECT MAX (AAA.EFFDATE) FROM HREPINFOMAST AAA  WHERE AAA.IDNO=AA.IDNO AND AAA.ACTUAL = AA.ACTUAL AND AAA.EFFDATE <= A.DOCDATE )
 AND AA.ACTUAL='T' AND AA.IDNO=A.EMPID 
 GROUP BY AA.IDNO,AA.SAL
-)/8,2) OTAMT FROM BPPHDATTA A WHERE A.DOCDATE BETWEEN 
+)/8,2) OTAMT FROM ${COMPCODE}HDATTA A WHERE A.DOCDATE BETWEEN 
 (
 SELECT MIN(AA.STDT) FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = :PAYPERIOD AND AA.COMPCODE = :COMPCODE
 ) AND 
@@ -704,7 +729,7 @@ ORDER BY A.DOCDATE`
 
 export async function getEachOverTimeWages(req,res) { 
     const payperiod=req.query.payperiod
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const months = [
         { label: 'January', value: 1},
         { label: 'February', value:2 },
@@ -757,7 +782,7 @@ export async function getEachOverTimeWages(req,res) {
 export async function getOverTimeWages(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         const sql =
@@ -792,12 +817,13 @@ export async function getOverTimeWages(req,res) {
 
 export async function getMoreDetails(req,res) { 
     const IDCARD=req.query.Idcard
+    const COMPCODE=String(req.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         const sql =
-            ` select em.AADHAARNAME,em.DISABILITY,em.GENDER,em.LANGUAGE,ed.HOSTEL,ed.ESI,ed.PF,ed.IDCARD,to_char(ed.DOJ,'DD-MM-YYYY') DOJ,ed.SALBY,em.FNAME from HREMPLOYMAST em join HREMPLOYDETAILS ed  on ed.HREMPLOYMASTID=em.HREMPLOYMASTID where ed.IDCARD=:IDCARD`
+            ` select em.AADHAARNAME,em.DISABILITY,em.GENDER,em.LANGUAGE,ed.HOSTEL,ed.ESI,ed.PF,ed.IDCARD,to_char(ed.DOJ,'DD-MM-YYYY') DOJ,ed.SALBY,em.FNAME from HREMPLOYMAST em join HREMPLOYDETAILS ed  on ed.HREMPLOYMASTID=em.HREMPLOYMASTID join GTCOMPMAST gc on gc.GTCOMPMASTID=em.COMPCODE where ed.IDCARD=:IDCARD and  gc.COMPCODE=:COMPCODE`
    
-        const result = await connection.execute(sql,{IDCARD})
+        const result = await connection.execute(sql,{IDCARD,COMPCODE})
         
         const transformedResult = result?.rows?.map(row => {
             const keyValuePair = {};
@@ -826,7 +852,7 @@ export async function getESI(req,res) {
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
     const type=req?.query?.type
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
 
@@ -879,7 +905,7 @@ export async function getMonthESIPF(req,res) {
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
     const type=req?.query?.type
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
       try {
         var whereparams= type=="M" || !type ? {PAYPERIOD:payperiod,IDCARD} : {IDCARD}
@@ -931,12 +957,12 @@ GROUP BY
 export async function getInOut(req,res) { 
     const payperiod=req.query.payperiod
     const IDCARD=req.query.Idcard
-    const COMPCODE=req?.headers?.COMPCODE
-    
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
+    //A.PER
     const connection = await getConnection(res)
       try {
       const sql =
-            `select A.EMPID,to_char(A.INDT,'DD/MM/YYYY') INDT,A.INTIME,to_char(A.OUTDT,'DD/MM/YYYY') OUTDT,A.OUTTIME,A.SHIFTCNT,A.OT,A.PER from ${COMPCODE}hdatta a where A.EMPID = :IDCARD
+            `select A.EMPID,to_char(A.INDT,'DD/MM/YYYY') INDT,A.INTIME,to_char(A.OUTDT,'DD/MM/YYYY') OUTDT,A.OUTTIME,A.SHIFTCNT,A.OT from ${COMPCODE}hdatta a where A.EMPID = :IDCARD
 AND A.DOCDATE BETWEEN (
 SELECT A.STDT FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = :COMPCODE AND A.PAYPERIOD = :PAYPERIOD
 ) AND (
@@ -971,7 +997,7 @@ ORDER BY A.DOCDATE`
 
 
 export async function getUserMobData(req,res) { 
-    const GCOMPCODE=req?.headers?.GCOMPCODE
+    const GCOMPCODE=String(req?.headers?.compcode).toUpperCase()
     const Idcard=req.query.Idcard
     const connection = await getConnection(res)
       try {
@@ -980,6 +1006,8 @@ export async function getUserMobData(req,res) {
 
    
         const result = await connection.execute(sql,{GCOMPCODE,Idcard})
+        console.log(""+result.rows);
+        
         
         const transformedResult = result?.rows?.map(row => {
             const keyValuePair = {};
@@ -1009,7 +1037,7 @@ export async function getUserMobData(req,res) {
 
 export async function ToTexpenses(req,res) {  
     const year=req.query.payperiod
-    const COMPCODE=req?.headers?.COMPCODE
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
     
       try {
@@ -1035,7 +1063,11 @@ export async function ToTexpenses(req,res) {
 
 
 export async function getLastMonthSalary(req, res) {
-    const Idcard=req.query.Idcard
+    const Idcard=req?.query?.Idcard
+    const COMPCODE=String(req?.headers?.compcode).toUpperCase()
+
+
+    
   
     const options = {
         year: 'numeric',    // Day of the month (e.g., 3)
@@ -1048,15 +1080,18 @@ export async function getLastMonthSalary(req, res) {
       
       // Format the date using toLocaleDateString
       const formattedDate = currentDate.toLocaleDateString('en-GB', options);
-   
+ 
     const connection = await getConnection(res)
+    //sum(A.PERWAGES) Sum(A.EBASIC)
       try {
         const sql =
-            ` SELECT SUM(A.NETPAY) SALARY,SUM(A.EGROSS) GROSS,A.PAYPERIOD,Sum(A.EBASIC),A.SALTYPE,sum(A.WDAYS),sum(A.OT),sum(A.OTWAGES),sum(A.ADV),sum(A.TOTDED),sum(A.LOAN),sum(A.PERWAGES)
- FROM BPPHPAYROLL A WHERE A.EMPID=:IdCard AND A.PAYPERIOD=:payperiod
- AND A.PCTYPE = 'ACTUAL'  group by A.PAYPERIOD,A.SALTYPE`
+            ` SELECT SUM(A.NETPAY) SALARY,SUM(A.EGROSS) GROSS,A.PAYPERIOD,A.SALTYPE,sum(A.WDAYS),sum(A.OT),sum(A.OTWAGES),sum(A.ADV),sum(A.TOTDED),sum(A.LOAN)
+      FROM ${COMPCODE}HPAYROLL A WHERE A.EMPID=:IdCard AND A.PAYPERIOD=:payperiod
+      AND A.PCTYPE = 'ACTUAL'  group by A.PAYPERIOD,A.SALTYPE`
+ 
         const result = await connection.execute(sql,{payperiod:formattedDate,IdCard:Idcard})
-       
+          
+          
         
         return res.json({ statusCode: 0, data:{salary: result?.rows[0][0],gross:result?.rows[0][1],payperiod:result?.rows[0][2],basic:result?.rows[0][3],saltype:result?.rows[0][4],wd:result?.rows[0][5],ot:result?.rows[0][6],otamt:result?.rows[0][7],adv:result?.rows[0][8],deb:result?.rows[0][9],loan:result?.rows[0][10],pwage:result?.rows[0][11]} })
     }
@@ -1073,7 +1108,8 @@ export async function getLastMonthSalary(req, res) {
 
 
 export async function getCurrentMonthLeaves(req, res) {
-    const Idcard=req.query.Idcard
+    const Idcard=req?.headers?.Idcard
+    const  COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const options = {
         year: 'numeric',    // Day of the month (e.g., 3)
         month: 'long'      // Full month name (e.g., September)
@@ -1094,11 +1130,10 @@ export async function getCurrentMonthLeaves(req, res) {
       try {
         const sql =
             `select Sum(a.Leave) Leave
-           from BPPHPAYROLL a where a.PAYPERIOD=:payperiod and a.EMPID=:IdCard group by a.PAYPERIOD`
+           from ${COMPCODE}HPAYROLL a where a.PAYPERIOD=:payperiod and a.EMPID=:IdCard group by a.PAYPERIOD`
         const result = await connection.execute(sql,{payperiod:formattedDate,IdCard:Idcard})
       
-        console.log(`select Sum(a.Leave) Leave
-           from BPPHPAYROLL a where a.PAYPERIOD='${formattedDate}' and a.EMPID=${Idcard} group by a.PAYPERIOD`);
+        
         
         return res.json({ statusCode: 0, data:{Leave:result?.rows[0]?.length>0 ? result?.rows[0][0]+"Days" : "Not Yet Updated"} })
     }
@@ -1116,7 +1151,7 @@ export async function getCurrentMonthLeaves(req, res) {
 
 
 export async function getYearWiseToTSalary(req, res) {
-   
+    const  COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
     try {
      
@@ -1125,7 +1160,7 @@ export async function getYearWiseToTSalary(req, res) {
     FINYEAR AS YEAR,  
     SUM(NETPAY) AS salary 
 FROM 
-    BPPHPAYROLL  
+    ${COMPCODE}HPAYROLL  
 WHERE 
     ID > 0  
 GROUP BY 

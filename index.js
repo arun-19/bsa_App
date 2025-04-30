@@ -16,11 +16,15 @@ import {
   misDashboard,
   ordManagement,
   user,
-  Leave
+  Leave,
+  Permission,
+  Notification
 } from "./src/routes/index.js"
 import { getConnection } from './src/constants/db.connection.js';
 import bodyParser from 'body-parser';
 import { PrismaClient } from './src/generated/prisma/client.js';
+import { Server } from 'socket.io';
+import http  from "http"
 
 
 const app = express()
@@ -47,6 +51,7 @@ BigInt.prototype['toJSON'] = function () {
 };
 
 
+
 app.use('/poRegister', poRegister)
 
 app.use('/commonMast', commonMast)
@@ -60,6 +65,9 @@ app.use('/misDashboard', misDashboard)
 app.use('/ordManagement', ordManagement)
 
 app.post('/leave',Leave)
+app.use('/Permission',Permission)
+
+app.use('/Notifi',Notification)
 
 
 export async function getCommonData(req, res) {
@@ -110,7 +118,26 @@ app.post('/getCommon', getCommonData)
 app.use('/users', user)
 const PORT = 8025;
 
-app.listen(PORT, () => {
+
+
+const server=http.createServer(app)
+const io=new Server(server,{cors: {
+  origin: '*', 
+  methods: ['GET', 'POST'],
+}})
+
+io.on('connection', client => {
+  client.on("permission_request", (data) => {
+    console.log("get_Notifi_permission_id:"+data.compcode+""+data.hod);
+    
+    client.broadcast.emit("get_Notifi_permission_id:"+data.compcode+""+data.hod, {
+      data,
+    });
+  })
+ 
+});
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 

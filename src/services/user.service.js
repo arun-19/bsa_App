@@ -58,7 +58,7 @@ export async function login(req, res) {
 
 export async function create(req, res) {
     const connection = await getConnection();
-    const { username, password, checkboxes, email, role,Idcard,Compcodes} = req.body;
+    const { username, password, checkboxes,hod, email, role,Idcard,Compcodes} = req.body;
     console.log(role, 'check');
 
     const roles = checkboxes || [].map((item) => item.id)
@@ -78,7 +78,7 @@ export async function create(req, res) {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        var UserCreation=await prisma_Connector.user.create({data:{username:username, password:hashedPassword,email:email,Idcard,Companies:{create:Compcodes}}})
+        var UserCreation=await prisma_Connector.user.create({data:{username:username, password:hashedPassword,email:email,Idcard,hod,Companies:{create:Compcodes}}})
     
     
 
@@ -130,21 +130,59 @@ export async function get(req, res) {
 
 export async function getUserDetails(req, res) {
      const Idcard=req.query.Idcard
+     const ismul=req?.query?.ismul
+     const COMPCODE=String(req?.headers?.compcode).toUpperCase()
     const connection = await getConnection(res)
     try {
-        const sql = `  
+       
+
+       
+  
+  
+        if(ismul){
+            const sql =`SELECT D.MNNAME1 DeptName,A.FNAME,A.IDCARDNO EMPID,c.DESIGNATION,E.MOBNO
+            FROM HREMPLOYMAST A
+             JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID=B.HREMPLOYMASTID
+            JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID=B.DESIGNATION
+            JOIN GTDEPTDESGMAST D ON D.GTDEPTDESGMASTID=B.DEPTNAME
+            JOIN GTCOMPMAST CM ON  CM.GTCOMPMASTID=A.COMPCODE 
+            left join  HRECONTACTDETAILS E on E.HREMPLOYMASTID=A.HREMPLOYMASTID
+            WHERE   A.IDCARDNO IN (${String(Idcard)})  and CM.COMPCODE=:COMPCODE` 
+            const result =await connection.execute(sql,{COMPCODE})  
+
+            const transformedResult = result?.rows?.map(row => {
+                const keyValuePair = {};
+                // Assuming the first row contains the column names
+                result.metaData.forEach((col, index) => {
+                  keyValuePair[col.name] = row[index];
+                });
+                return keyValuePair;
+               });
+
+
+
+               
+               return res.json({ statusCode: 0, data: transformedResult })
+
+        }else{
+            const sql=`  
 SELECT D.MNNAME1 DeptName,A.FNAME,A.IDCARDNO EMPID,c.DESIGNATION,E.MOBNO
-FROM HREMPLOYMAST A JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID=B.HREMPLOYMASTID
+FROM HREMPLOYMAST A
+ JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID=B.HREMPLOYMASTID
 JOIN GTDESIGNATIONMAST C ON C.GTDESIGNATIONMASTID=B.DESIGNATION
 JOIN GTDEPTDESGMAST D ON D.GTDEPTDESGMASTID=B.DEPTNAME
+JOIN GTCOMPMAST CM ON  CM.GTCOMPMASTID=A.COMPCODE 
 left join  HRECONTACTDETAILS E on E.HREMPLOYMASTID=A.HREMPLOYMASTID
-WHERE A.IDCARDNO=:IDCARDNO`
-        const result = await connection.execute(sql,{IDCARDNO:Idcard})
+WHERE A.IDCARDNO=:IDCARDNO and CM.COMPCODE=:COMPCODE
+`
+            const result =await connection.execute(sql,{COMPCODE,IDCARDNO:Idcard})  
        const resp = result?.rows[0]
         return res.json({ statusCode: 0, data: resp ? {
             Department:resp[0],Name:resp[1],EmpId:resp[2],Designation:resp[3],
             Mobile:resp[4]
           } : {} })
+
+        }
     }
     catch (err) {
         console.log(err)
@@ -464,9 +502,10 @@ export async function getEmployeeIds(req,res) {
     const connection = await getConnection(res)
       try {
         
-        const sql =`SELECT C.COMPCODE||'( '||B.IDCARD|| ')' "value",B.IDCARD "id",C.COMPCODE,C.COMPNAME FROM HREMPLOYMAST A 
+        const sql =`SELECT C.COMPCODE||'('||B.IDCARD ||')'||'('|| D.FNAME ||')' "value",B.IDCARD "id",C.COMPCODE,C.COMPNAME,B.DEPTNAME FROM HREMPLOYMAST A 
 JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID = B.HREMPLOYMASTID
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
+JOIN HREMPLOYMAST D ON D.HREMPLOYMASTID = B.HREMPLOYMASTID
 ORDER BY 3,TO_NUMBER(B.IDCARD)`
 
    

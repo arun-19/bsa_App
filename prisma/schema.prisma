@@ -26,6 +26,8 @@ model User {
   role                 Role?              @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId               Int?
   otp                  String?
+  hod                  String?
+  Permission           PermissionEntry[]
   verificationOtp      String?
   expiresAt            DateTime?
   createdAt            DateTime?          @default(now())
@@ -46,6 +48,10 @@ model User {
   CostingAdminResaved  Costing[]          @relation(name: "adminResaved")
   UserAdminDet         UserAdminDet[]     @relation("UserRelation")
   AdminDet             UserAdminDet[]     @relation("AdminRelation")
+  fcm                  String             @default("")
+  PermissionEntry PermissionEntry[] @relation("PermissionHod")
+
+  PermissionEntryUser PermissionEntry[] @relation("User")
 }
 
 //used 
@@ -57,6 +63,36 @@ model CompanyCode{
    User        User   @relation(fields: [Idcard], references: [Idcard])
   @@index([Idcard])
 }
+
+
+model PermissionDocID{
+   id          Int          @id @default(autoincrement())
+ count        Int 
+}
+
+model PermissionEntry {
+  id              Int       @id @default(autoincrement())
+  createdOn       DateTime  @default(now())
+  createdBy       String
+  modifiedOn      DateTime? @default(now())
+  isCancelled     Boolean   @default(false)
+  userId          String
+  compCode        String
+  docid            String @unique
+  docDate         DateTime
+  fTime           String
+  tTime           String
+  thrs            String
+  permissionId    String   @default(uuid())
+  reason          String?
+  approvalStatus  String    @default("pending")
+   hod               String
+   hodId             User    @relation("PermissionHod", fields: [hod], references: [Idcard])
+   userdata          User @relation("User", fields: [userId], references: [Idcard])
+   @@map("PermissionEntry") // optional: map to actual table name if needed
+   User User[] 
+}
+  
 
 
 

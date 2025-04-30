@@ -125,19 +125,45 @@ exports.Prisma.UserScalarFieldEnum = {
   Idcard: 'Idcard',
   roleId: 'roleId',
   otp: 'otp',
+  hod: 'hod',
   verificationOtp: 'verificationOtp',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt',
   active: 'active',
   employeeId: 'employeeId',
   isAllParty: 'isAllParty',
-  isAdmin: 'isAdmin'
+  isAdmin: 'isAdmin',
+  fcm: 'fcm'
 };
 
 exports.Prisma.CompanyCodeScalarFieldEnum = {
   id: 'id',
   Idcard: 'Idcard',
   companyCode: 'companyCode'
+};
+
+exports.Prisma.PermissionDocIDScalarFieldEnum = {
+  id: 'id',
+  count: 'count'
+};
+
+exports.Prisma.PermissionEntryScalarFieldEnum = {
+  id: 'id',
+  createdOn: 'createdOn',
+  createdBy: 'createdBy',
+  modifiedOn: 'modifiedOn',
+  isCancelled: 'isCancelled',
+  userId: 'userId',
+  compCode: 'compCode',
+  docid: 'docid',
+  docDate: 'docDate',
+  fTime: 'fTime',
+  tTime: 'tTime',
+  thrs: 'thrs',
+  permissionId: 'permissionId',
+  reason: 'reason',
+  approvalStatus: 'approvalStatus',
+  hod: 'hod'
 };
 
 exports.Prisma.PageScalarFieldEnum = {
@@ -846,12 +872,28 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   password: 'password',
   Idcard: 'Idcard',
   otp: 'otp',
-  verificationOtp: 'verificationOtp'
+  hod: 'hod',
+  verificationOtp: 'verificationOtp',
+  fcm: 'fcm'
 };
 
 exports.Prisma.CompanyCodeOrderByRelevanceFieldEnum = {
   Idcard: 'Idcard',
   companyCode: 'companyCode'
+};
+
+exports.Prisma.PermissionEntryOrderByRelevanceFieldEnum = {
+  createdBy: 'createdBy',
+  userId: 'userId',
+  compCode: 'compCode',
+  docid: 'docid',
+  fTime: 'fTime',
+  tTime: 'tTime',
+  thrs: 'thrs',
+  permissionId: 'permissionId',
+  reason: 'reason',
+  approvalStatus: 'approvalStatus',
+  hod: 'hod'
 };
 
 exports.Prisma.PageOrderByRelevanceFieldEnum = {
@@ -1239,6 +1281,8 @@ exports.ProcessIO = exports.$Enums.ProcessIO = {
 exports.Prisma.ModelName = {
   User: 'User',
   CompanyCode: 'CompanyCode',
+  PermissionDocID: 'PermissionDocID',
+  PermissionEntry: 'PermissionEntry',
   Page: 'Page',
   InfoTerm: 'InfoTerm',
   Article: 'Article',
