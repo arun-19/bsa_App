@@ -18,7 +18,8 @@ import {
   user,
   Leave,
   Permission,
-  Notification
+  Notification,
+  Advance
 } from "./src/routes/index.js"
 import { getConnection } from './src/constants/db.connection.js';
 import bodyParser from 'body-parser';
@@ -70,6 +71,7 @@ app.use('/leave',Leave)
 app.use('/Permission',Permission)
 
 app.use('/Notifi',Notification)
+app.use("/advance",Advance)
 
 
 

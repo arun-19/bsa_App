@@ -140,6 +140,35 @@ exports.Prisma.UserScalarFieldEnum = {
   fcm: 'fcm'
 };
 
+exports.Prisma.AdvanceRequestScalarFieldEnum = {
+  id: 'id',
+  docid: 'docid',
+  docdate: 'docdate',
+  idcard: 'idcard',
+  fromDate: 'fromDate',
+  toDate: 'toDate',
+  empname: 'empname',
+  finyear: 'finyear',
+  advtype: 'advtype',
+  total: 'total',
+  paytype: 'paytype',
+  preloan: 'preloan',
+  totalloan: 'totalloan',
+  predue: 'predue',
+  ins: 'ins',
+  due: 'due',
+  remark: 'remark',
+  approvalStatus: 'approvalStatus',
+  compCode: 'compCode',
+  createdOn: 'createdOn',
+  updatedOn: 'updatedOn',
+  createdBy: 'createdBy',
+  modified_By: 'modified_By',
+  rejectBy: 'rejectBy',
+  approvedBy: 'approvedBy',
+  category: 'category'
+};
+
 exports.Prisma.CompanyCodeScalarFieldEnum = {
   id: 'id',
   Idcard: 'Idcard',
@@ -929,6 +958,23 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   fcm: 'fcm'
 };
 
+exports.Prisma.AdvanceRequestOrderByRelevanceFieldEnum = {
+  docid: 'docid',
+  idcard: 'idcard',
+  empname: 'empname',
+  finyear: 'finyear',
+  advtype: 'advtype',
+  paytype: 'paytype',
+  predue: 'predue',
+  remark: 'remark',
+  approvalStatus: 'approvalStatus',
+  compCode: 'compCode',
+  createdBy: 'createdBy',
+  modified_By: 'modified_By',
+  rejectBy: 'rejectBy',
+  approvedBy: 'approvedBy'
+};
+
 exports.Prisma.CompanyCodeOrderByRelevanceFieldEnum = {
   Idcard: 'Idcard',
   companyCode: 'companyCode'
@@ -1364,6 +1410,7 @@ exports.ProcessIO = exports.$Enums.ProcessIO = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  AdvanceRequest: 'AdvanceRequest',
   CompanyCode: 'CompanyCode',
   PermissionDocID: 'PermissionDocID',
   PermissionMaster: 'PermissionMaster',

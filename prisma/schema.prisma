@@ -62,6 +62,10 @@ PermissionEntry_Modified_user PermissionEntry[] @relation("modified_User")
   LeaveEntry_hod LeaveEntry[] @relation("LeaveHod")
 
   LeaveEntry_user LeaveEntry[] @relation("LeaveUser")
+
+  AdvanceRequest_create AdvanceRequest[] @relation("create_User")
+
+  AdvanceRequest_modified AdvanceRequest[] @relation("modified_User")
 }
 
 
@@ -75,25 +79,32 @@ model AdvanceRequest {
   fromDate    DateTime @db.Date
   toDate      DateTime @db.Date
   empname     String   @db.VarChar(100)
-  category    String   @db.VarChar(30)
   finyear     String   @db.VarChar(10)
   advtype     String   @db.VarChar(30)
   total       Float
+  paytype     String?
   preloan     Float    @default(0)
   totalloan   Float    @default(0)
   predue      String   @db.VarChar(20)
   ins         Int      @default(0)
+  due         Int
   remark      String   @db.VarChar(500)
-  status      String   @db.VarChar(20) @default("PENDING")
+  approvalStatus  String    @default("pending")
   compCode    String   @db.VarChar(10) @map("comp_code")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  createdBy   String   @db.VarChar(50) @map("created_by")
-  approvedBy  String   @db.VarChar(50) @map("approved_by") @default("")
+  createdOn   DateTime @default(now()) 
+  updatedOn   DateTime   @default(now()) 
+  createdBy       String    
+   createdBy_user   User  @relation("create_User",fields: [createdBy],references: [Idcard])
+   modified_By       String 
+    modifiedBy_user   User  @relation("modified_User",fields: [modified_By],references: [Idcard])
+    rejectBy        String? @default("")
+   approvedBy  String?   @default("")
+   category          Int @default(1)
+   category_data          PermissionMaster   @relation("Advance_Category", fields: [category], references: [id])
 
   @@index([idcard])
   @@index([finyear])
-  @@index([status])
+  @@index([approvalStatus])
   @@map("advance_requests")
 }
 
@@ -123,6 +134,8 @@ model PermissionMaster{
 
 
   LeaveEntry LeaveEntry[] @relation("leave_Category")
+
+  AdvanceRequest AdvanceRequest[] @relation("Advance_Category")
 }
 
 model PermissionEntry {
@@ -151,7 +164,7 @@ model PermissionEntry {
   reason          String?
   approvalStatus  String    @default("pending")
   hod               String
- category          Int @default(1)
+  category          Int @default(1)
  category_data          PermissionMaster   @relation("permision_Category", fields: [category], references: [id])
   hodId             User    @relation("PermissionHod", fields: [hod], references: [Idcard])
   userdata          User @relation("User", fields: [userId], references: [Idcard])
