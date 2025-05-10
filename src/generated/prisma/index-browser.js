@@ -163,6 +163,8 @@ exports.Prisma.AdvanceRequestScalarFieldEnum = {
   createdOn: 'createdOn',
   updatedOn: 'updatedOn',
   createdBy: 'createdBy',
+  create: 'create',
+  update: 'update',
   modified_By: 'modified_By',
   rejectBy: 'rejectBy',
   approvedBy: 'approvedBy',
@@ -172,7 +174,8 @@ exports.Prisma.AdvanceRequestScalarFieldEnum = {
 exports.Prisma.CompanyCodeScalarFieldEnum = {
   id: 'id',
   Idcard: 'Idcard',
-  companyCode: 'companyCode'
+  companyCode: 'companyCode',
+  companyid: 'companyid'
 };
 
 exports.Prisma.PermissionDocIDScalarFieldEnum = {
@@ -977,7 +980,8 @@ exports.Prisma.AdvanceRequestOrderByRelevanceFieldEnum = {
 
 exports.Prisma.CompanyCodeOrderByRelevanceFieldEnum = {
   Idcard: 'Idcard',
-  companyCode: 'companyCode'
+  companyCode: 'companyCode',
+  companyid: 'companyid'
 };
 
 exports.Prisma.PermissionMasterOrderByRelevanceFieldEnum = {

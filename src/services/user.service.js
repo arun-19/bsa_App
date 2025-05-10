@@ -553,7 +553,7 @@ export async function getCompanyCode(req,res) {
     const connection = await getConnection(res)
       try {
         
-        const sql =`SELECT A.COMPCODE "id",A.COMPCODE "value" FROM GTCOMPMAST A 
+        const sql =`SELECT A.COMPCODE "id",A.COMPCODE "value",A.GTCOMPMASTID COMPID FROM GTCOMPMAST A 
 WHERE A.PTRANSACTION = 'COMPANY' ORDER BY 1`
 
    

@@ -74,10 +74,10 @@ PermissionEntry_Modified_user PermissionEntry[] @relation("modified_User")
 model AdvanceRequest {
   id          Int      @id @default(autoincrement())
   docid       String   @unique @db.VarChar(50)
-  docdate     DateTime @db.Date
-  idcard      String   @db.VarChar(20)
-  fromDate    DateTime @db.Date
-  toDate      DateTime @db.Date
+  docdate     DateTime @default(now())
+  idcard      String   @db.VarChar(200)
+  fromDate    DateTime @default(now())
+  toDate      DateTime @default(now())
   empname     String   @db.VarChar(100)
   finyear     String   @db.VarChar(10)
   advtype     String   @db.VarChar(30)
@@ -94,6 +94,8 @@ model AdvanceRequest {
   createdOn   DateTime @default(now()) 
   updatedOn   DateTime   @default(now()) 
   createdBy       String    
+  create          Int @default(0)
+  update          Int @default(0)
    createdBy_user   User  @relation("create_User",fields: [createdBy],references: [Idcard])
    modified_By       String 
     modifiedBy_user   User  @relation("modified_User",fields: [modified_By],references: [Idcard])
@@ -116,6 +118,7 @@ model CompanyCode{
   Idcard      String 
   companyCode String
    User        User   @relation(fields: [Idcard], references: [Idcard])
+   companyid   String?
   @@index([Idcard])
 }
 

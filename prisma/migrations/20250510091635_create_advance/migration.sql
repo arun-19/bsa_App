@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `advance_requests` ADD COLUMN `create` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `update` INTEGER NOT NULL DEFAULT 0;
