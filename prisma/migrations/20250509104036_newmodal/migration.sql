@@ -1,0 +1,31 @@
+-- CreateTable
+CREATE TABLE `advance_requests` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `docid` VARCHAR(50) NOT NULL,
+    `docdate` DATE NOT NULL,
+    `idcard` VARCHAR(20) NOT NULL,
+    `fromDate` DATE NOT NULL,
+    `toDate` DATE NOT NULL,
+    `empname` VARCHAR(100) NOT NULL,
+    `category` VARCHAR(30) NOT NULL,
+    `finyear` VARCHAR(10) NOT NULL,
+    `advtype` VARCHAR(30) NOT NULL,
+    `total` DOUBLE NOT NULL,
+    `preloan` DOUBLE NOT NULL DEFAULT 0,
+    `totalloan` DOUBLE NOT NULL DEFAULT 0,
+    `predue` VARCHAR(20) NOT NULL,
+    `ins` INTEGER NOT NULL DEFAULT 0,
+    `remark` VARCHAR(500) NOT NULL,
+    `approvalStatus` VARCHAR(191) NOT NULL DEFAULT 'pending',
+    `comp_code` VARCHAR(10) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+    `created_by` VARCHAR(50) NOT NULL,
+    `approved_by` VARCHAR(50) NOT NULL DEFAULT '',
+
+    UNIQUE INDEX `advance_requests_docid_key`(`docid`),
+    INDEX `advance_requests_idcard_idx`(`idcard`),
+    INDEX `advance_requests_finyear_idx`(`finyear`),
+    INDEX `advance_requests_approvalStatus_idx`(`approvalStatus`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

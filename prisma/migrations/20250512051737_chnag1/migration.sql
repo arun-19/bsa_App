@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `advance_requests` MODIFY `total` DOUBLE NOT NULL DEFAULT 0,
+    MODIFY `due` INTEGER NOT NULL DEFAULT 0;

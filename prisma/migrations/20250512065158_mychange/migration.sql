@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `advance_requests` MODIFY `fromDate` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3);
